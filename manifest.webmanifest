@@ -1,0 +1,17 @@
+{
+  "name": "Таролог",
+  "short_name": "Таролог",
+  "description": "Расклады Таро с мгновенным разбором: вопрос текстом, голосом или про себя.",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07051a",
+  "theme_color": "#0a0720",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
