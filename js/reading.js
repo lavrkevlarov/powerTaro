@@ -70,10 +70,6 @@
     for (const k of Object.keys(THEMES)) if (THEMES[k].re.test(t)) return k;
     return 'general';
   }
-  function isYesNo(q) {
-    const t = (q || '').toLowerCase().trim();
-    return /(^|\s)ли(\s|$|\?)/.test(t) || /^(стоит|будет|можно|получится|смогу|вернётся|вернется|любит|да или нет)/.test(t);
-  }
 
   function score(card, reversed) {
     if (!reversed) return card.pol;
@@ -164,17 +160,15 @@
 
     // общий тон
     const total = draws.reduce((s, d) => s + score(d.card, d.reversed), 0) / n;
-    let tone, verdict = null;
+    // по канону расклад «Прошлое · Настоящее · Будущее» не даёт ответа «да/нет» — только тенденцию
+    let tone;
+    const verdict = null;
     if (total > 0.55) tone = pick(['Общий тон расклада светлый: обстоятельства на вашей стороне.', 'Энергия расклада благоприятная — вы движетесь в верном направлении.']);
     else if (total > 0.1) tone = 'Расклад скорее благоприятный: успех возможен, но потребует вашего участия.';
     else if (total > -0.2) tone = 'Расклад неоднозначный: многое зависит от ваших решений в ближайшее время.';
     else if (total > -0.6) tone = 'Карты предупреждают о трудностях — но предупреждён, значит вооружён.';
     else tone = 'Расклад напряжённый: ситуация требует осторожности и честного взгляда на происходящее.';
     out.push(tone);
-
-    if (isYesNo(question) || silent || spread.id === 'one') {
-      verdict = total > 0.55 ? 'Да' : total > 0.1 ? 'Скорее да' : total > -0.2 ? 'Пока неясно' : total > -0.6 ? 'Скорее нет' : 'Нет';
-    }
 
     // совет
     const advDraw = draws.find(d => spread.pos[d.posIndex].advice) || draws[draws.length - 1];
