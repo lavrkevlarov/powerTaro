@@ -1,5 +1,5 @@
 /* Офлайн-кэш приложения */
-const CACHE = 'taro-v3';
+const CACHE = 'taro-v4';
 const ASSETS = ['./', 'index.html', 'css/style.css', 'js/cards.js', 'js/art.js', 'js/reading.js', 'js/sky.js', 'js/app.js',
   'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
 

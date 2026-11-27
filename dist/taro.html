@@ -1,0 +1,1825 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Таролог</title>
+  <meta name="description" content="Таролог — задай свой вопрос, сними колоду и вытяни три карты. Расклад «Прошлое · Настоящее · Будущее» с разбором.">
+  <meta name="theme-color" content="#0a0720">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1MCUiIGN5PSI0MCUiIHI9IjcwJSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjM2EyNTgwIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDcwNTFhIi8+PC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMTIiIGZpbGw9InVybCgjZykiLz4KICA8cmVjdCB4PSIxNTYiIHk9Ijk2IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMyMCIgcng9IjIwIiBmaWxsPSJub25lIiBzdHJva2U9IiNlOWM5N2EiIHN0cm9rZS13aWR0aD0iMTAiLz4KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9Ijc0IiBmaWxsPSJub25lIiBzdHJva2U9IiNlOWM5N2EiIHN0cm9rZS13aWR0aD0iNiIvPgogIDxwYXRoIGQ9Ik0yOTAgMTk2YTY2IDY2IDAgMSAwIDAgMTIwYTU0IDU0IDAgMSAxIDAtMTIweiIgZmlsbD0iI2U5Yzk3YSIvPgogIDxwb2x5Z29uIHBvaW50cz0iMjU2LDEyOCAyNjMsMTQ2IDI4MiwxNDYgMjY3LDE1NyAyNzIsMTc1IDI1NiwxNjQgMjQwLDE3NSAyNDUsMTU3IDIzMCwxNDYgMjQ5LDE0NiIgZmlsbD0iI2Y4ZTZiMCIvPgogIDxwb2x5Z29uIHBvaW50cz0iMjU2LDMzOCAyNjMsMzU2IDI4MiwzNTYgMjY3LDM2NyAyNzIsMzg1IDI1NiwzNzQgMjQwLDM4NSAyNDUsMzY3IDIzMCwzNTYgMjQ5LDM1NiIgZmlsbD0iI2Y4ZTZiMCIvPgo8L3N2Zz4K" type="image/svg+xml">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #07051a;
+  --bg2: #120c33;
+  --gold: #e9c97a;
+  --gold-2: #f8e6b0;
+  --violet: #8b6cff;
+  --rose: #ff8fb8;
+  --text: #efe9ff;
+  --muted: #a79fc9;
+  --glass: rgba(26, 18, 66, .55);
+  --line: rgba(233, 201, 122, .25);
+  --cw: 120px;
+  --fcw: 70px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Manrope', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+html { background: var(--bg); }
+body {
+  background: radial-gradient(ellipse at 50% -10%, #2a1a66 0%, var(--bg2) 35%, var(--bg) 75%) fixed;
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+#sky { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.nebula {
+  position: fixed; inset: -20%; z-index: 0; pointer-events: none; opacity: .55;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(139, 108, 255, .25), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255, 143, 184, .16), transparent 40%),
+    radial-gradient(circle at 60% 20%, rgba(80, 160, 255, .12), transparent 35%);
+  animation: drift 40s ease-in-out infinite alternate;
+  filter: blur(10px);
+}
+@keyframes drift { to { transform: translate(4%, -3%) rotate(8deg) scale(1.1); } }
+
+/* верхняя панель */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+  background: linear-gradient(to bottom, rgba(7, 5, 26, .85), rgba(7, 5, 26, 0));
+}
+.brand { display: flex; align-items: center; gap: 10px; color: var(--gold); font-family: var(--serif); font-size: 26px; font-weight: 700; letter-spacing: .5px; }
+.brand svg { animation: slowspin 30s linear infinite; }
+@keyframes slowspin { to { transform: rotate(360deg); } }
+.icon-btn {
+  width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
+  border: 1px solid var(--line); background: rgba(255, 255, 255, .04); color: var(--gold);
+  transition: .3s var(--ease);
+}
+.icon-btn:hover { background: rgba(233, 201, 122, .12); transform: rotate(-12deg); }
+
+.app { position: relative; z-index: 1; max-width: 1040px; margin: 0 auto; padding-block: 0 60px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.screen { display: none; }
+.screen.active { display: block; animation: screenIn .8s var(--ease) both; }
+@keyframes screenIn { from { opacity: 0; transform: translateY(24px) scale(.98); filter: blur(6px); } }
+
+/* герой */
+.hero { text-align: center; padding: 8px 0 18px; }
+.title { font-family: var(--serif); font-size: clamp(38px, 7vw, 60px); font-weight: 700; margin: 10px 0 6px;
+  background: linear-gradient(100deg, var(--gold-2), var(--gold) 40%, #fff 50%, var(--gold) 60%, var(--gold-2));
+  background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: shimmer 6s linear infinite; }
+@keyframes shimmer { to { background-position: -250% 0; } }
+.hero-simple { min-height: calc(100vh - 140px); min-height: calc(100svh - 140px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.hero-simple .orb { transform: scale(1.4); margin-bottom: 50px; }
+.hero-simple .lead { font-size: 17px; }
+.btn-primary.btn-go { width: min(320px, 100%); margin-top: 36px; padding: 20px; font-size: 20px; letter-spacing: 3px; text-transform: uppercase; animation: goPulse 3s ease-in-out infinite; }
+@keyframes goPulse { 50% { box-shadow: 0 10px 50px rgba(233, 201, 122, .65), 0 0 0 8px rgba(233, 201, 122, .08); } }
+.lead { color: var(--muted); margin: 0 auto; max-width: 420px; line-height: 1.5; }
+
+.orb { position: relative; width: 150px; height: 150px; margin: 0 auto; }
+.orb-core { position: absolute; inset: 42px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #e0c8ff 20%, #8b6cff 55%, #2a1466 100%);
+  box-shadow: 0 0 40px rgba(139, 108, 255, .8), 0 0 90px rgba(233, 201, 122, .35);
+  animation: breathe 4s ease-in-out infinite; }
+@keyframes breathe { 50% { transform: scale(1.12); box-shadow: 0 0 60px rgba(139, 108, 255, 1), 0 0 120px rgba(233, 201, 122, .5); } }
+.orb-ring { position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--line); }
+.orb-ring.r1 { animation: slowspin 14s linear infinite; border-top-color: var(--gold); }
+.orb-ring.r2 { inset: 14px; animation: slowspin 9s linear infinite reverse; border-left-color: var(--rose); }
+.orb-ring.r3 { inset: 28px; border-style: dashed; animation: slowspin 22s linear infinite; }
+.orb-cards span { position: absolute; left: 50%; top: 50%; width: 22px; height: 36px; margin: -18px -11px; border-radius: 4px;
+  background: linear-gradient(160deg, #3a2580, #140c35); border: 1px solid var(--gold);
+  animation: orbit 7s linear infinite; }
+.orb-cards span:nth-child(2) { animation-delay: -2.33s; }
+.orb-cards span:nth-child(3) { animation-delay: -4.66s; }
+@keyframes orbit { from { transform: rotate(0) translateX(78px) rotate(0); } to { transform: rotate(360deg) translateX(78px) rotate(-360deg); } }
+
+/* панель вопроса */
+.panel {
+  max-width: 640px; margin: 0 auto; padding: 22px;
+  background: var(--glass); border: 1px solid var(--line); border-radius: 24px;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+.tabs { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px; border-radius: 16px; background: rgba(0, 0, 0, .3); margin-bottom: 18px; }
+.tab { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 11px 6px; border-radius: 12px; color: var(--muted); font-weight: 600; font-size: 14px; transition: color .3s; }
+.tab svg { width: 18px; height: 18px; flex: none; }
+.tab.active { color: #1a1033; }
+.tab-glider { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold-2), var(--gold)); box-shadow: 0 4px 20px rgba(233, 201, 122, .4);
+  transition: transform .5s var(--ease); }
+
+.mode { display: none; }
+.mode.active { display: block; animation: fadeUp .5s var(--ease) both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } }
+
+.field { position: relative; }
+textarea {
+  width: 100%; resize: none; padding: 16px 58px 16px 16px; border-radius: 16px;
+  background: rgba(0, 0, 0, .35); border: 1px solid var(--line); color: var(--text);
+  font: 500 17px/1.45 var(--sans); outline: none; transition: border-color .3s, box-shadow .3s;
+}
+textarea::placeholder { color: rgba(167, 159, 201, .7); }
+textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(233, 201, 122, .12), 0 0 30px rgba(139, 108, 255, .25); }
+.mic-small { position: absolute; right: 10px; top: 10px; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: var(--gold); background: rgba(233, 201, 122, .1); transition: .3s; }
+.mic-small svg { width: 20px; height: 20px; }
+.mic-small:hover { background: rgba(233, 201, 122, .22); }
+.mic-small.rec, .mic-big.rec { color: #fff; background: #e2456e; }
+
+.voice-stage { display: none; flex-direction: column; align-items: center; gap: 10px; padding: 6px 0 16px; }
+#askBox.voice .voice-stage { display: flex; }
+#askBox.voice .mic-small { display: none; }
+.mic-big { position: relative; width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center; color: #1a1033;
+  background: radial-gradient(circle at 35% 30%, var(--gold-2), var(--gold)); box-shadow: 0 0 30px rgba(233, 201, 122, .5); transition: .3s; }
+.mic-big svg { width: 38px; height: 38px; position: relative; z-index: 1; }
+.mic-big .wave { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--gold); opacity: 0; }
+.mic-big.rec .wave { animation: wave 1.8s ease-out infinite; border-color: #ff7aa0; }
+.mic-big.rec .w2 { animation-delay: .6s; } .mic-big.rec .w3 { animation-delay: 1.2s; }
+@keyframes wave { from { transform: scale(1); opacity: .8; } to { transform: scale(2.1); opacity: 0; } }
+.voice-hint { color: var(--muted); font-size: 14px; min-height: 20px; }
+
+.suggest { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.suggest button { padding: 7px 12px; border-radius: 999px; font-size: 13px; color: var(--muted); border: 1px solid var(--line); background: rgba(255, 255, 255, .03); transition: .25s; }
+.suggest button:hover { color: var(--gold-2); border-color: var(--gold); transform: translateY(-2px); }
+
+.breath { position: relative; height: 170px; display: grid; place-items: center; }
+.breath-circle { position: absolute; width: 110px; height: 110px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(233, 201, 122, .5), rgba(139, 108, 255, .2) 60%, transparent 70%);
+  border: 1px solid var(--gold); animation: breathCycle 8s ease-in-out infinite; }
+@keyframes breathCycle { 0%, 100% { transform: scale(.7); opacity: .6; } 50% { transform: scale(1.35); opacity: 1; } }
+.breath-text { position: relative; font-family: var(--serif); font-size: 24px; color: var(--gold-2); }
+.muted { color: var(--muted); line-height: 1.5; }
+.center { text-align: center; }
+
+.section-label { margin: 22px 0 10px; font-size: 12px; text-transform: uppercase; letter-spacing: 3px; color: var(--gold); opacity: .85; }
+.spreads { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.spread-opt { position: relative; padding: 12px; border-radius: 16px; border: 1px solid var(--line); background: rgba(0, 0, 0, .25); text-align: left; transition: .35s var(--ease); overflow: hidden; }
+.spread-opt:hover { transform: translateY(-3px); border-color: rgba(233, 201, 122, .6); }
+.spread-opt.active { border-color: var(--gold); background: linear-gradient(160deg, rgba(233, 201, 122, .16), rgba(139, 108, 255, .12)); box-shadow: 0 0 24px rgba(233, 201, 122, .2); }
+.spread-opt b { display: block; font-size: 14px; margin-top: 8px; }
+.spread-opt small { color: var(--muted); font-size: 12px; }
+.mini { position: relative; height: 44px; }
+.mini i { position: absolute; width: 14px; height: 22px; border-radius: 3px; border: 1px solid var(--gold); background: rgba(233, 201, 122, .12); transition: .4s var(--ease); }
+.spread-opt.active .mini i { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+
+.opts { display: flex; flex-wrap: wrap; gap: 12px 22px; margin: 20px 0 22px; }
+.switch { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); cursor: pointer; user-select: none; }
+.switch input { display: none; }
+.slider { position: relative; width: 40px; height: 22px; border-radius: 99px; background: rgba(255, 255, 255, .12); transition: .3s; flex: none; }
+.slider::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: .3s var(--ease); }
+.switch input:checked + .slider { background: var(--gold); }
+.switch input:checked + .slider::after { transform: translateX(18px); background: #1a1033; }
+
+.btn-primary { position: relative; width: 100%; padding: 17px; border-radius: 16px; overflow: hidden; font-weight: 700; font-size: 17px; letter-spacing: .5px; color: #1a1033;
+  background: linear-gradient(135deg, var(--gold-2), var(--gold) 50%, #d9a94e); box-shadow: 0 10px 30px rgba(233, 201, 122, .35); transition: .3s var(--ease); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(233, 201, 122, .5); }
+.btn-primary:active { transform: scale(.98); }
+.btn-primary .shine { position: absolute; top: 0; left: -60%; width: 40%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .7), transparent); transform: skewX(-20deg); animation: shine 3.5s ease-in-out infinite; }
+@keyframes shine { 0%, 60% { left: -60%; } 100% { left: 130%; } }
+.btn-ghost { padding: 12px 18px; border-radius: 14px; border: 1px solid var(--line); color: var(--gold-2); background: rgba(255, 255, 255, .04); font-weight: 600; transition: .3s var(--ease); display: inline-flex; align-items: center; gap: 8px; }
+.btn-ghost:hover { border-color: var(--gold); background: rgba(233, 201, 122, .1); transform: translateY(-2px); }
+.btn-ghost.small { padding: 8px 14px; font-size: 13px; }
+.btn-ghost svg { width: 18px; height: 18px; }
+
+/* стол */
+.q-echo { text-align: center; font-family: var(--serif); font-size: clamp(20px, 3.4vw, 28px); font-style: italic; color: var(--gold-2); margin: 6px auto 4px; max-width: 760px; min-height: 1em; }
+.status { text-align: center; color: var(--muted); min-height: 24px; letter-spacing: .5px; margin-bottom: 14px; transition: opacity .4s; }
+.status .dots::after { content: ''; animation: dots 1.4s steps(4) infinite; }
+@keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
+
+.spread { position: relative; margin: 0 auto; transition: height .5s var(--ease); }
+.slot { position: absolute; width: var(--cw); transition: left .7s var(--ease), top .7s var(--ease), width .7s var(--ease); }
+.slot-frame { width: var(--cw); height: calc(var(--cw) * 1.7); transition: width .7s var(--ease), height .7s var(--ease); border-radius: calc(var(--cw) * .07); border: 1.5px dashed rgba(233, 201, 122, .45);
+  display: grid; place-items: center; color: rgba(233, 201, 122, .55); font-family: var(--serif); font-size: calc(var(--cw) * .3);
+  animation: slotGlow 2.6s ease-in-out infinite; background: rgba(233, 201, 122, .03); }
+.slot.next .slot-frame { border-color: var(--gold); box-shadow: 0 0 25px rgba(233, 201, 122, .4), inset 0 0 25px rgba(233, 201, 122, .15); }
+@keyframes slotGlow { 50% { box-shadow: 0 0 18px rgba(139, 108, 255, .35); } }
+.slot-label { text-align: center; margin-top: 8px; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); white-space: nowrap; }
+.slot .card { position: absolute; top: 0; left: 0; }
+
+.card { width: var(--cw); height: calc(var(--cw) * 1.7); perspective: 1200px; transition: width .7s var(--ease), height .7s var(--ease); }
+.card-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 1s var(--ease); }
+.card.flipped .card-inner { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 7%; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, .5); }
+.face.front { transform: rotateY(180deg); }
+.face.front.rev .card-svg { transform: rotate(180deg); }
+.card-svg { display: block; width: 100%; height: 100%; }
+.slot .card.flipped { cursor: zoom-in; }
+.slot .card.flipped:hover .card-inner { transform: rotateY(180deg) translateY(-6px) scale(1.03); }
+.slot .card.flipped .face.front { box-shadow: 0 10px 40px rgba(0, 0, 0, .6), 0 0 30px rgba(233, 201, 122, .25); }
+.card.glow .face.front::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .55) 50%, transparent 70%); background-size: 250% 100%; animation: sheen 1.4s ease-out forwards; pointer-events: none; }
+@keyframes sheen { from { background-position: 150% 0; } to { background-position: -100% 0; } }
+
+/* колода и веер */
+.deck-zone { position: sticky; bottom: 0; z-index: 5; height: calc(var(--fcw) * 2.7); margin: 20px auto 0; transition: height .6s var(--ease), opacity .6s; }
+.deck-zone.gone { height: 0; opacity: 0; margin: 0; }
+.fan-card { position: absolute; left: calc(50% - var(--fcw) / 2); top: calc(var(--fcw) * .5); width: var(--fcw); height: calc(var(--fcw) * 1.7);
+  transform-origin: 50% var(--om, 500%); --rot: 0deg; --lift: 0px; --x: 0px;
+  transform: translateX(var(--x)) rotate(var(--rot)) translateY(var(--lift));
+  transition: transform .7s var(--ease), opacity .4s, filter .3s; }
+.fan-card .face { box-shadow: 0 4px 14px rgba(0, 0, 0, .55); }
+.deck-zone.picking .fan-card { cursor: pointer; }
+.deck-zone.picking .fan-card:hover, .fan-card.hover { --lift: calc(var(--fcw) * -.35); filter: drop-shadow(0 0 12px rgba(233, 201, 122, .8)); }
+.fan-card.taken { opacity: 0; pointer-events: none; }
+.deck-zone.cutting { cursor: pointer; }
+.deck-zone.cutting .fan-card { animation: cutHint 1.6s ease-in-out infinite; scale: 1.8; }
+.fan-card { transition: transform .7s var(--ease), opacity .4s, filter .3s, scale .5s var(--ease); }
+.deck-zone.cutting .fan-card:last-child { filter: drop-shadow(0 0 16px rgba(233, 201, 122, .9)); }
+@keyframes cutHint { 50% { translate: 0 -6px; } }
+.flyer { position: fixed; z-index: 50; pointer-events: none; }
+.flyer .face { box-shadow: 0 20px 50px rgba(0, 0, 0, .6), 0 0 30px rgba(233, 201, 122, .5); }
+
+.spark { position: fixed; z-index: 60; width: 6px; height: 6px; border-radius: 50%; pointer-events: none; background: var(--gold-2); box-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold); }
+
+/* толкование */
+.reading { max-width: 760px; margin: 34px auto 0; }
+.r-item { display: grid; grid-template-columns: 64px 1fr; gap: 16px; padding: 18px; margin-bottom: 14px; border-radius: 20px;
+  background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  animation: itemIn .9s var(--ease) both; cursor: pointer; transition: border-color .3s, transform .3s; }
+.r-item:hover { border-color: rgba(233, 201, 122, .6); transform: translateY(-2px); }
+@keyframes itemIn { from { opacity: 0; transform: translateY(30px); filter: blur(8px); } }
+.r-thumb { width: 64px; height: 109px; border-radius: 6px; overflow: hidden; box-shadow: 0 6px 16px rgba(0, 0, 0, .5); }
+.r-thumb.rev .card-svg { transform: rotate(180deg); }
+.r-pos { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); }
+.r-name { font-family: var(--serif); font-size: 26px; font-weight: 700; margin: 2px 0 6px; line-height: 1.1; }
+.r-name em { font-family: var(--sans); font-style: normal; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 99px; background: rgba(255, 143, 184, .16); color: var(--rose); vertical-align: middle; margin-left: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.chips span { font-size: 12px; padding: 3px 9px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); }
+.r-text { line-height: 1.6; margin: 0; }
+.r-extra { line-height: 1.55; margin: 8px 0 0; color: var(--muted); font-size: 14.5px; }
+
+.summary { position: relative; padding: 26px 22px; border-radius: 24px; margin-top: 26px; overflow: hidden;
+  background: linear-gradient(160deg, rgba(233, 201, 122, .14), rgba(139, 108, 255, .14) 60%, rgba(255, 143, 184, .1));
+  border: 1px solid rgba(233, 201, 122, .5); box-shadow: 0 0 60px rgba(139, 108, 255, .2); animation: itemIn 1s var(--ease) both; }
+.summary::before { content: ''; position: absolute; inset: -50%; background: conic-gradient(from 0deg, transparent, rgba(233, 201, 122, .14), transparent 30%); animation: slowspin 12s linear infinite; pointer-events: none; }
+.summary > * { position: relative; }
+.summary h2 { font-family: var(--serif); font-size: 32px; margin: 0 0 6px; color: var(--gold-2); }
+.verdict { display: inline-flex; align-items: center; gap: 10px; margin: 6px 0 14px; padding: 10px 18px; border-radius: 99px; font-family: var(--serif); font-size: 26px; font-weight: 700; color: #1a1033; background: linear-gradient(135deg, var(--gold-2), var(--gold)); box-shadow: 0 0 30px rgba(233, 201, 122, .5); animation: pop .8s var(--ease) both .3s; }
+.verdict.neg { background: linear-gradient(135deg, #ffc0d4, #d97a9c); }
+.verdict.mid { background: linear-gradient(135deg, #e5dcff, #a896ee); }
+@keyframes pop { from { transform: scale(.3); opacity: 0; } 70% { transform: scale(1.08); } }
+.summary p { line-height: 1.65; margin: 0 0 10px; }
+.summary p.typing::after { content: '▍'; color: var(--gold); animation: blink .8s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.advice { margin-top: 16px; padding: 16px 18px; border-radius: 16px; background: rgba(0, 0, 0, .3); border-left: 3px solid var(--gold); font-family: var(--serif); font-size: 22px; font-style: italic; color: var(--gold-2); }
+.advice small { display: block; font-family: var(--sans); font-style: normal; font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 26px 0 10px; animation: itemIn 1s var(--ease) both; }
+.disclaimer { text-align: center; font-size: 12px; color: rgba(167, 159, 201, .6); margin-top: 18px; }
+
+/* модалка */
+.modal, .drawer { position: fixed; inset: 0; z-index: 80; visibility: hidden; }
+.modal.open, .drawer.open { visibility: visible; }
+.modal-bg, .drawer-bg { position: absolute; inset: 0; background: rgba(4, 2, 16, .75); backdrop-filter: blur(6px); opacity: 0; transition: opacity .4s; }
+.open .modal-bg, .open .drawer-bg { opacity: 1; }
+.modal-body { position: absolute; left: 50%; top: 50%; width: min(860px, calc(100% - 32px)); max-height: calc(100% - 32px); overflow: auto;
+  transform: translate(-50%, -46%) scale(.9); opacity: 0; transition: .5s var(--ease);
+  display: grid; grid-template-columns: minmax(180px, 300px) 1fr; gap: 26px; align-items: center; padding: 26px;
+  background: linear-gradient(160deg, #1d1450, #0c0826); border: 1px solid var(--line); border-radius: 26px; box-shadow: 0 30px 80px rgba(0, 0, 0, .7); }
+.modal.open .modal-body { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+.modal-x { position: absolute; right: 14px; top: 14px; }
+.modal-card { border-radius: 18px; overflow: hidden; box-shadow: 0 0 50px rgba(233, 201, 122, .3); animation: float 5s ease-in-out infinite; }
+.modal-card.rev .card-svg { transform: rotate(180deg); }
+@keyframes float { 50% { transform: translateY(-8px) rotate(.8deg); } }
+.modal-text h3 { font-family: var(--serif); font-size: 36px; margin: 0 0 4px; color: var(--gold-2); }
+.modal-text .r-pos { margin-bottom: 4px; }
+.modal-text p { line-height: 1.65; }
+.modal-text h4 { margin: 16px 0 4px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
+
+/* история */
+.drawer-body { position: absolute; right: 0; top: 0; bottom: 0; width: min(400px, 100%); padding: calc(18px + env(safe-area-inset-top)) 18px 18px; overflow: auto;
+  background: linear-gradient(180deg, #1a1248, #0a0722); border-left: 1px solid var(--line); transform: translateX(100%); transition: transform .5s var(--ease); }
+.drawer.open .drawer-body { transform: none; }
+.drawer-head { display: flex; justify-content: space-between; align-items: center; }
+.drawer-head h2 { font-family: var(--serif); font-size: 30px; margin: 0; color: var(--gold-2); }
+.history-list { margin: 16px 0; display: grid; gap: 10px; }
+.h-item { text-align: left; padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: rgba(255, 255, 255, .03); transition: .3s; }
+.h-item:hover { border-color: var(--gold); transform: translateX(-4px); }
+.h-item b { display: block; font-weight: 600; margin-bottom: 4px; }
+.h-item small { color: var(--muted); }
+.h-cards { display: flex; gap: 4px; margin-top: 8px; }
+.h-cards div { width: 26px; height: 44px; border-radius: 3px; overflow: hidden; }
+
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); z-index: 90; transform: translate(-50%, 40px); opacity: 0; padding: 12px 20px; border-radius: 14px; background: #2a1d66; border: 1px solid var(--gold); color: var(--gold-2); transition: .45s var(--ease); max-width: calc(100% - 32px); text-align: center; }
+.toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+@media (max-width: 640px) {
+  .panel { padding: 16px; border-radius: 20px; }
+  .tab { font-size: 13px; gap: 5px; }
+  .orb { width: 120px; height: 120px; }
+  .orb-core { inset: 34px; }
+  @keyframes orbit { from { transform: rotate(0) translateX(62px) rotate(0); } to { transform: rotate(360deg) translateX(62px) rotate(-360deg); } }
+  .spreads { grid-template-columns: repeat(2, 1fr); }
+  .r-item { grid-template-columns: 52px 1fr; gap: 12px; padding: 14px; }
+  .r-thumb { width: 52px; height: 88px; }
+  .r-name { font-size: 22px; }
+  .modal-body { grid-template-columns: 1fr; padding: 20px; gap: 16px; }
+  .modal-card { width: 62%; margin: 0 auto; }
+  .slot-label { font-size: 10px; letter-spacing: .5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+</style>
+</head>
+<body>
+  <canvas id="sky" aria-hidden="true"></canvas>
+  <div class="nebula" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <button class="brand" id="home" aria-label="На главную">
+      <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true">
+        <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M24 9a11 11 0 1 0 0 22a9 9 0 1 1 0-22z" fill="currentColor"/>
+        <circle cx="27" cy="14" r="1.4" fill="currentColor"/><circle cx="30" cy="22" r="1" fill="currentColor"/>
+      </svg>
+      <span>Таролог</span>
+    </button>
+    <button class="icon-btn" id="openHistory" aria-label="История раскладов" title="История">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 7v5l3 2M3.5 12a8.5 8.5 0 1 0 2.5-6M3 4v4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </header>
+
+  <main class="app">
+    <!-- ЭКРАН ВОПРОСА -->
+    <section id="screenAsk" class="screen active">
+      <div class="hero hero-simple">
+        <div class="orb" aria-hidden="true">
+          <div class="orb-ring r1"></div><div class="orb-ring r2"></div><div class="orb-ring r3"></div>
+          <div class="orb-core"></div>
+          <div class="orb-cards"><span></span><span></span><span></span></div>
+        </div>
+        <h1 class="title">Задай свой вопрос</h1>
+        <p class="lead">Мысленно или вслух — и нажми «Расклад»</p>
+        <button class="btn-primary btn-go" id="go"><span>Расклад</span><i class="shine"></i></button>
+      </div>
+    </section>
+
+    <!-- ЭКРАН РАСКЛАДА -->
+    <section id="screenTable" class="screen">
+      <div class="q-echo" id="qEcho"></div>
+      <div class="status" id="status"></div>
+      <div class="spread" id="spread"></div>
+      <div class="deck-zone" id="deckZone"></div>
+      <div class="reading" id="reading"></div>
+    </section>
+  </main>
+
+  <!-- Модальное окно карты -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-bg" data-close></div>
+    <div class="modal-body">
+      <button class="icon-btn modal-x" data-close aria-label="Закрыть">✕</button>
+      <div class="modal-card" id="modalCard"></div>
+      <div class="modal-text" id="modalText"></div>
+    </div>
+  </div>
+
+  <!-- История -->
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-bg" data-close></div>
+    <div class="drawer-body">
+      <div class="drawer-head"><h2>История</h2><button class="icon-btn" data-close aria-label="Закрыть">✕</button></div>
+      <div id="historyList" class="history-list"></div>
+      <button class="btn-ghost small" id="clearHistory">Очистить историю</button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+/* Колода: 78 карт. Тексты значений — авторские, иллюстрации генерируются в art.js */
+(function () {
+  'use strict';
+
+  const ROMAN = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII',
+    'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
+
+  // [имя, ключевые слова, прямое, перевёрнутое, совет, полярность]
+  const MAJORS = [
+    ['Шут', 'начало, свобода, спонтанность',
+      'Новый виток, шаг в неизвестность с открытым сердцем. Ситуация зовёт довериться жизни и не просчитывать всё наперёд.',
+      'Безрассудство, риск без опоры или страх сделать первый шаг. Важно отличать свободу от легкомыслия.',
+      'Сделай шаг, даже если не видишь всей лестницы.', 1],
+    ['Маг', 'воля, мастерство, действие',
+      'У вас есть всё необходимое: ресурсы, навыки и сила намерения. Время действовать и проявлять инициативу.',
+      'Распыление сил, манипуляции или неверие в свои возможности. Кто-то может говорить больше, чем делать.',
+      'Соедини мысль и действие — начни сегодня.', 1],
+    ['Жрица', 'интуиция, тайна, внутреннее знание',
+      'Ответ уже живёт внутри вас. Не всё раскрыто — наблюдайте, слушайте сны и предчувствия.',
+      'Игнорирование интуиции, скрытые мотивы, секреты. Возможно, вы не слышите себя за чужим шумом.',
+      'Помолчи и прислушайся — знание придёт тихо.', 0],
+    ['Императрица', 'изобилие, забота, плодородие',
+      'Рост, красота, творчество и щедрость. То, что вы взращиваете, начинает приносить плоды.',
+      'Застой, гиперопека или забвение собственных нужд. Творческий поток перекрыт.',
+      'Позаботься о себе так же, как заботишься о других.', 1],
+    ['Император', 'структура, власть, стабильность',
+      'Порядок, ответственность и твёрдые границы. Успех придёт через дисциплину и ясный план.',
+      'Жёсткость, контроль, давление авторитета — или, наоборот, отсутствие опоры.',
+      'Выстрой систему и держи слово.', 1],
+    ['Иерофант', 'традиция, наставник, ценности',
+      'Опора на проверенные пути, наставника и общие правила. Поддержка опытных людей.',
+      'Бунт против правил, догмы, поиск собственного пути вне системы.',
+      'Спроси совета у того, кто уже прошёл этот путь.', 1],
+    ['Влюблённые', 'выбор, союз, гармония',
+      'Глубокая связь, взаимность и важный выбор, сделанный сердцем. Совпадение ценностей.',
+      'Разлад, сомнения в выборе, несогласованность желаний и поступков.',
+      'Выбирай то, что совпадает с твоими ценностями.', 1],
+    ['Колесница', 'победа, движение, воля',
+      'Решительное продвижение вперёд. Победа достигается собранностью и волей.',
+      'Потеря направления, буксование: противоречивые стремления тянут в разные стороны.',
+      'Определи цель и держи курс.', 1],
+    ['Сила', 'мужество, мягкая сила, терпение',
+      'Внутренняя сила, способная укротить страх и гнев без борьбы. Терпение побеждает.',
+      'Неуверенность, вспышки эмоций или самокритика, отнимающая силы.',
+      'Будь мягок и твёрд одновременно.', 1],
+    ['Отшельник', 'поиск, уединение, мудрость',
+      'Время уйти в себя, чтобы найти истину. Ответ откроется в тишине, а не в суете.',
+      'Изоляция, одиночество, отказ от помощи — или страх остаться наедине с собой.',
+      'Возьми паузу и освети свой путь сам.', 0],
+    ['Колесо Фортуны', 'судьба, перемены, цикл',
+      'Поворот судьбы, удачное стечение обстоятельств. Жизнь приходит в движение.',
+      'Полоса неудач, сопротивление переменам, повторение старого сценария.',
+      'Лови момент — колесо уже вращается.', 1],
+    ['Справедливость', 'истина, баланс, последствия',
+      'Честность и объективность. Вы получите то, что заслужили; решения будут взвешенными.',
+      'Несправедливость, уход от ответственности, предвзятость.',
+      'Будь честен — прежде всего с собой.', 0],
+    ['Повешенный', 'пауза, жертва, новый взгляд',
+      'Остановка ради переосмысления. Посмотрите на ситуацию под другим углом — и решение откроется.',
+      'Застревание, бессмысленная жертва, затягивание неизбежного.',
+      'Отпусти контроль и посмотри иначе.', 0],
+    ['Смерть', 'завершение, трансформация',
+      'Конец одного этапа освобождает место новому. Глубокая, неизбежная трансформация.',
+      'Сопротивление переменам, цепляние за прошлое, затянувшийся финал.',
+      'Позволь старому уйти.', 0],
+    ['Умеренность', 'баланс, исцеление, мера',
+      'Гармония, терпение и золотая середина. Всё складывается постепенно и правильно.',
+      'Крайности, дисбаланс, нетерпение и спешка.',
+      'Ищи меру и не торопи события.', 1],
+    ['Дьявол', 'зависимость, искушение, тень',
+      'Привязанности, страсти и страхи, которые держат в плену. Часто эти цепи надеты добровольно.',
+      'Освобождение от зависимости, осознание своей тени, разрыв токсичных связей.',
+      'Назови то, что тебя держит, — и цепь ослабнет.', -1],
+    ['Башня', 'крах, озарение, внезапность',
+      'Внезапные перемены рушат то, что было построено на ложной основе. Болезненно, но освобождает.',
+      'Избегание неизбежного кризиса, страх перемен, медленное разрушение.',
+      'Не держись за то, что уже трещит.', -1],
+    ['Звезда', 'надежда, вдохновение, исцеление',
+      'Свет после бури. Надежда, вера в будущее, исцеление и вдохновение.',
+      'Разочарование, потеря веры, ощущение оторванности от мечты.',
+      'Верь — твой свет виден издалека.', 1],
+    ['Луна', 'иллюзии, страхи, подсознание',
+      'Не всё таково, каким кажется. Туман и тревоги — доверяйте интуиции, но проверяйте факты.',
+      'Иллюзии рассеиваются, правда выходит наружу, страхи отступают.',
+      'Не принимай решений в тумане.', -1],
+    ['Солнце', 'радость, успех, ясность',
+      'Яркий успех, радость, тепло и ясность. Одна из самых благоприятных карт колоды.',
+      'Временная пасмурность, излишний оптимизм или радость, которую вы себе не позволяете.',
+      'Сияй и делись теплом.', 1],
+    ['Суд', 'пробуждение, зов, итоги',
+      'Момент пробуждения и подведения итогов. Зов к новому уровню, второй шанс.',
+      'Самоосуждение, игнорирование внутреннего зова, страх перемен.',
+      'Услышь свой зов и ответь ему.', 1],
+    ['Мир', 'завершение, целостность, успех',
+      'Цикл успешно завершён. Целостность, достижение цели, гармония с миром.',
+      'Незавершённость: последний шаг ещё не сделан, есть задержка.',
+      'Заверши начатое и отпразднуй.', 1]
+  ];
+
+  const SUITS = {
+    wands: { name: 'Жезлы', gen: 'Жезлов', element: 'Огонь', sphere: 'энергия, дела, страсть' },
+    cups: { name: 'Кубки', gen: 'Кубков', element: 'Вода', sphere: 'чувства, отношения, интуиция' },
+    swords: { name: 'Мечи', gen: 'Мечей', element: 'Воздух', sphere: 'мысли, решения, конфликты' },
+    pentacles: { name: 'Пентакли', gen: 'Пентаклей', element: 'Земля', sphere: 'деньги, работа, тело' }
+  };
+
+  const RANKS = ['Туз', 'Двойка', 'Тройка', 'Четвёрка', 'Пятёрка', 'Шестёрка', 'Семёрка',
+    'Восьмёрка', 'Девятка', 'Десятка', 'Паж', 'Рыцарь', 'Королева', 'Король'];
+  const RANK_SHORT = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'П', 'Р', 'Д', 'К'];
+
+  // [ключевые слова, прямое, перевёрнутое, полярность]
+  const MINORS = {
+    wands: [
+      ['вдохновение, новый замысел', 'Искра нового дела, прилив энергии и вдохновения.', 'Задержки на старте, угасший энтузиазм.', 1],
+      ['планирование, выбор пути', 'Вы смотрите за горизонт и строите планы. Пора решить, куда направить силы.', 'Страх неизвестности, нерешительность, топтание на месте.', 1],
+      ['расширение, перспективы', 'Первые результаты и новые горизонты. Ваши корабли уже в пути.', 'Задержки и препятствия на пути к расширению.', 1],
+      ['праздник, дом, опора', 'Радость, праздник, крепкий фундамент и чувство дома.', 'Нестабильность, отменённые планы, временный разлад.', 1],
+      ['соперничество, споры', 'Конкуренция, столкновение мнений, суета. Борьба, которая закаляет.', 'Конфликт затихает; поиск компромисса или избегание спора.', -1],
+      ['победа, признание', 'Успех, признание, заслуженная награда и одобрение окружающих.', 'Сомнения в успехе, тщеславие, отсутствие признания.', 1],
+      ['защита позиций', 'Вам приходится отстаивать своё. Вы на высоте — держите оборону.', 'Усталость от борьбы, желание сдаться, ощущение осады.', 0],
+      ['скорость, новости', 'Стремительное развитие, быстрые новости — всё приходит в движение.', 'Задержки, спешка, неверно понятые сообщения.', 1],
+      ['стойкость, последний рубеж', 'Вы устали, но почти у цели. Стойкость и опыт помогут выдержать.', 'Истощение, подозрительность, нежелание продолжать.', 0],
+      ['бремя, перегрузка', 'Слишком много ответственности на ваших плечах. Пора делегировать.', 'Сброс груза и освобождение — или срыв под тяжестью.', -1],
+      ['энтузиазм, весть', 'Вдохновляющие новости, любопытство, свежий старт в творчестве.', 'Незрелость, пустые идеи, огорчающие вести.', 1],
+      ['порыв, приключение', 'Энергичное, страстное движение вперёд, смелость и жажда приключений.', 'Импульсивность, нетерпение, дела, брошенные на полпути.', 1],
+      ['уверенность, харизма', 'Тёплая уверенность, обаяние, независимость и творческая сила.', 'Ревность, неуверенность, излишняя требовательность.', 1],
+      ['лидерство, видение', 'Прирождённый лидер с ясным видением. Время брать инициативу и вести за собой.', 'Деспотичность, нетерпимость, завышенные ожидания.', 1]
+    ],
+    cups: [
+      ['новое чувство, открытость', 'Новые чувства, любовь, эмоциональное обновление, переполненное сердце.', 'Закрытость, подавленные эмоции, внутренняя пустота.', 1],
+      ['взаимность, союз', 'Взаимная симпатия, партнёрство, гармоничный союз двух сердец.', 'Разлад, недопонимание, дисбаланс в отношениях.', 1],
+      ['дружба, праздник', 'Радость общения, дружба, праздник, поддержка близких.', 'Сплетни, излишества, «третий лишний».', 1],
+      ['апатия, переоценка', 'Скука и неудовлетворённость: вы не замечаете того, что вам предлагают.', 'Пробуждение интереса, готовность принять новое.', 0],
+      ['утрата, сожаление', 'Печаль о потерянном. Но не всё пропало — оглянитесь, два кубка всё ещё стоят.', 'Принятие, прощение, восстановление после утраты.', -1],
+      ['ностальгия, прошлое', 'Тёплые воспоминания, встреча из прошлого, простота и искренность.', 'Застревание в прошлом, идеализация былого.', 0],
+      ['иллюзии, много вариантов', 'Много вариантов и фантазий. Важно отделить мечты от реальности.', 'Ясность, отказ от иллюзий, сделанный выбор.', 0],
+      ['уход, поиск смысла', 'Вы оставляете то, что больше не наполняет, и идёте искать большее.', 'Страх уйти, метания, возвращение к старому.', 0],
+      ['исполнение желаний', 'Карта желаний: удовлетворение, радость, исполнение задуманного.', 'Самодовольство или желание, которое исполнилось, но не радует.', 1],
+      ['семейное счастье', 'Гармония в семье, эмоциональная полнота, счастье в кругу близких.', 'Разлад в семье, несбывшиеся ожидания.', 1],
+      ['чувствительность, послание', 'Нежное послание, романтическая весть, творческое вдохновение.', 'Эмоциональная незрелость, обидчивость.', 1],
+      ['романтика, предложение', 'Романтичное предложение, приглашение, следование зову сердца.', 'Пустые обещания, переменчивость настроений.', 1],
+      ['эмпатия, чуткость', 'Сострадание, глубокая чуткость, эмоциональная мудрость.', 'Эмоциональная зависимость, жертвенность, растворение в других.', 1],
+      ['эмоциональная зрелость', 'Спокойствие и мудрость в чувствах, умение сохранять равновесие.', 'Манипуляции чувствами, подавленные эмоции, перепады настроения.', 1]
+    ],
+    swords: [
+      ['ясность, прорыв', 'Ясность мысли, истина, решительный прорыв.', 'Путаница, ложные выводы, резкие слова.', 1],
+      ['тупик, неопределённость', 'Трудный выбор: вы закрываетесь от информации, решение откладывается.', 'Правда выходит на свет, тупик разрешается.', 0],
+      ['боль, разочарование', 'Сердечная боль, разочарование, болезненная правда.', 'Исцеление, отпускание боли, прощение.', -1],
+      ['отдых, восстановление', 'Пауза, отдых, восстановление сил перед следующим шагом.', 'Беспокойство, выгорание, неумение остановиться.', 0],
+      ['конфликт, пиррова победа', 'Конфликт, где победа даётся ценой отношений. Стоит ли оно того?', 'Примирение, желание прекратить борьбу.', -1],
+      ['переход, спокойные воды', 'Переход к более спокойным водам. Трудности остаются позади.', 'Неразрешённые проблемы, невозможность уйти.', 1],
+      ['хитрость, скрытность', 'Хитрость, стратегия или обман. Кто-то действует за спиной.', 'Разоблачение, голос совести, возвращение утраченного.', -1],
+      ['ограничение, страх', 'Чувство ловушки, которую создают собственные мысли. Повязку можно снять.', 'Освобождение от ограничений, новый взгляд.', -1],
+      ['тревога, бессонница', 'Тревоги и бессонные ночи — страхи живут больше в голове, чем в реальности.', 'Надежда, страхи отступают, вы решаетесь попросить о помощи.', -1],
+      ['финал, дно', 'Болезненный конец. Хуже уже не будет — дальше только рассвет.', 'Медленное возрождение после краха.', -1],
+      ['любопытство, бдительность', 'Острый ум, жажда знаний, бдительность и новые идеи.', 'Сплетни, поспешные слова, нехватка плана.', 0],
+      ['натиск, прямота', 'Стремительность, амбиции, прямолинейное действие.', 'Агрессия, необдуманные поступки, резкость.', 0],
+      ['проницательность, границы', 'Ясный ум, честность, умение видеть суть и ставить границы.', 'Холодность, жёсткость, горечь.', 0],
+      ['интеллект, авторитет', 'Логика, справедливость, ясные и взвешенные решения.', 'Манипуляции, тирания, злоупотребление властью.', 0]
+    ],
+    pentacles: [
+      ['новая возможность, ресурс', 'Новый материальный шанс: работа, деньги, проект с хорошей основой.', 'Упущенная возможность, слабое планирование.', 1],
+      ['баланс, гибкость', 'Жонглирование делами и финансами. Гибкость помогает удержать равновесие.', 'Перегрузка, финансовая неразбериха.', 0],
+      ['мастерство, командная работа', 'Совместная работа, признание мастерства, высокое качество труда.', 'Несогласованность в команде, небрежность.', 1],
+      ['контроль, бережливость', 'Сохранение ресурсов и стабильность — но и риск жадности или закрытости.', 'Щедрость или, наоборот, потеря контроля над деньгами.', 0],
+      ['нужда, трудности', 'Материальные или душевные трудности, ощущение изоляции. Помощь ближе, чем кажется.', 'Восстановление, выход из кризиса.', -1],
+      ['щедрость, обмен', 'Давать и получать: помощь, поддержка, справедливый обмен.', 'Долги, неравный обмен, помощь с условиями.', 1],
+      ['терпение, оценка', 'Вложения начинают прорастать. Время оценить результат и дождаться урожая.', 'Нетерпение, сомнения в отдаче, напрасные усилия.', 0],
+      ['усердие, обучение', 'Кропотливая работа, совершенствование навыков, внимание к деталям.', 'Перфекционизм или рутина без смысла.', 1],
+      ['самодостаточность, достаток', 'Независимость, комфорт и плоды собственных трудов.', 'Зависимость от других, траты сверх меры.', 1],
+      ['богатство, наследие', 'Долгосрочное благополучие, семейные традиции, стабильность.', 'Финансовые потери, семейные споры о деньгах.', 1],
+      ['учёба, новые цели', 'Новая цель, учёба, практичное начало, весть о деньгах.', 'Лень, отсутствие прогресса, нереалистичные планы.', 1],
+      ['надёжность, методичность', 'Медленное, но верное продвижение, трудолюбие и надёжность.', 'Застой, скука, упрямство.', 1],
+      ['практичная забота', 'Практичность, домашний уют, щедрость и умение создать достаток.', 'Самопожертвование ради работы, финансовая зависимость.', 1],
+      ['успех, изобилие', 'Материальный успех, деловая хватка, надёжная опора.', 'Жадность, упрямство, материализм.', 1]
+    ]
+  };
+
+  const SUIT_ADVICE = {
+    wands: ['Действуй, пока горит огонь.', 'Направь энергию в одно дело.', 'Не гаси свой энтузиазм сомнениями.'],
+    cups: ['Слушай сердце, а не страх.', 'Позволь себе чувствовать.', 'Будь мягче к себе и к другим.'],
+    swords: ['Говори честно и ясно.', 'Отдели факты от тревог.', 'Прими решение и не возвращайся к нему.'],
+    pentacles: ['Делай маленькие шаги каждый день.', 'Опирайся на реальные ресурсы.', 'Вложись в то, что растёт медленно, но надёжно.']
+  };
+
+  const DECK = [];
+  MAJORS.forEach((m, i) => {
+    DECK.push({
+      id: 'M' + i, arcana: 'major', num: i, numeral: ROMAN[i],
+      name: m[0], keywords: m[1], up: m[2], rev: m[3], advice: m[4], pol: m[5]
+    });
+  });
+  Object.keys(MINORS).forEach(suit => {
+    MINORS[suit].forEach((m, r) => {
+      DECK.push({
+        id: suit[0].toUpperCase() + (r + 1), arcana: 'minor', suit, rank: r + 1,
+        numeral: RANK_SHORT[r],
+        name: RANKS[r] + ' ' + SUITS[suit].gen,
+        keywords: m[0], up: m[1], rev: m[2], pol: m[3],
+        advice: SUIT_ADVICE[suit][r % 3]
+      });
+    });
+  });
+
+  window.Taro = window.Taro || {};
+  window.Taro.DECK = DECK;
+  window.Taro.SUITS = SUITS;
+})();
+
+</script>
+  <script>
+/* Авторский стиль «Звёздная гравюра»: все карты рисуются кодом в SVG. */
+(function () {
+  'use strict';
+
+  let uid = 0;
+  const GOLD = '#e9c97a';
+  const LIGHT = '#fbefc8';
+
+  const PALETTE = {
+    major: [['#2a1650', '#0c0820'], ['#3a1240', '#110618'], ['#162452', '#080c22'], ['#2b1a5a', '#0e0a24']],
+    wands: ['#4a1a12', '#170806', '#ff9a52'],
+    cups: ['#0f3247', '#05131d', '#7fd6f0'],
+    swords: ['#2c2f4d', '#0b0c18', '#c9cff5'],
+    pentacles: ['#173a26', '#06140c', '#b9e39a']
+  };
+  const MAJOR_ACCENTS = ['#ffd27a', '#ffb36b', '#c7b8ff', '#ffc2d1', '#ff9f80', '#f5d28c', '#ff9fc0',
+    '#9fd0ff', '#ffb070', '#b3c4ff', '#ffd27a', '#cfe8ff', '#a6f0d6', '#e0d0ff', '#9ff0e0',
+    '#ff7a7a', '#ffb070', '#bfe6ff', '#d7d0ff', '#ffdf70', '#ffc88a', '#a8f0c0'];
+
+  function rng(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function hash(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+
+  const f = n => Math.round(n * 100) / 100;
+
+  function starPts(cx, cy, R, r, n, rot = -90) {
+    const pts = [];
+    for (let i = 0; i < n * 2; i++) {
+      const a = (rot + i * 180 / n) * Math.PI / 180;
+      const rr = i % 2 ? r : R;
+      pts.push(f(cx + Math.cos(a) * rr) + ',' + f(cy + Math.sin(a) * rr));
+    }
+    return pts.join(' ');
+  }
+  const star = (cx, cy, R, r, n, attrs, rot) => `<polygon points="${starPts(cx, cy, R, r, n, rot)}" ${attrs}/>`;
+
+  function rays(cx, cy, r1, r2, n, attrs, off = 0) {
+    let s = '';
+    for (let i = 0; i < n; i++) {
+      const a = (off + i * 360 / n) * Math.PI / 180;
+      s += `<line x1="${f(cx + Math.cos(a) * r1)}" y1="${f(cy + Math.sin(a) * r1)}" x2="${f(cx + Math.cos(a) * r2)}" y2="${f(cy + Math.sin(a) * r2)}" ${attrs}/>`;
+    }
+    return s;
+  }
+  const spin = (cx, cy, dur, dir = 1) =>
+    `<animateTransform attributeName="transform" type="rotate" from="0 ${cx} ${cy}" to="${360 * dir} ${cx} ${cy}" dur="${dur}s" repeatCount="indefinite"/>`;
+  const pulse = (attr, vals, dur) => `<animate attributeName="${attr}" values="${vals}" dur="${dur}s" repeatCount="indefinite"/>`;
+
+  /* ---------- символы мастей ---------- */
+  function wand(cx, cy, s, c) {
+    return `<g transform="translate(${cx} ${cy}) scale(${s / 40})">
+      <line x1="0" y1="38" x2="0" y2="-26" stroke="${c}" stroke-width="4" stroke-linecap="round"/>
+      <path d="M0,-44 C8,-34 7,-26 0,-22 C-7,-26 -8,-34 0,-44Z" fill="${c}"/>
+      <path d="M0,-4 C10,-10 14,-6 16,-2 C10,0 5,-1 0,-4Z" fill="${c}" opacity=".85"/>
+      <path d="M0,14 C-10,8 -14,12 -16,16 C-10,18 -5,17 0,14Z" fill="${c}" opacity=".85"/>
+      <circle cx="0" cy="38" r="3" fill="${c}"/></g>`;
+  }
+  function cup(cx, cy, s, c) {
+    return `<g transform="translate(${cx} ${cy}) scale(${s / 40})">
+      <path d="M-22,-30 L22,-30 C22,-4 12,8 0,8 C-12,8 -22,-4 -22,-30Z" fill="none" stroke="${c}" stroke-width="3.5"/>
+      <path d="M-17,-22 C-6,-17 6,-27 17,-22" fill="none" stroke="${c}" stroke-width="2" opacity=".7"/>
+      <line x1="0" y1="8" x2="0" y2="28" stroke="${c}" stroke-width="3.5"/>
+      <circle cx="0" cy="17" r="3.2" fill="${c}"/>
+      <path d="M-15,36 C-10,28 10,28 15,36Z" fill="${c}"/></g>`;
+  }
+  function sword(cx, cy, s, c) {
+    return `<g transform="translate(${cx} ${cy}) scale(${s / 40})">
+      <path d="M0,-46 L5,-36 L5,18 L-5,18 L-5,-36Z" fill="none" stroke="${c}" stroke-width="3"/>
+      <line x1="0" y1="-38" x2="0" y2="14" stroke="${c}" stroke-width="1.2" opacity=".7"/>
+      <path d="M-18,18 Q0,26 18,18 L18,22 Q0,30 -18,22Z" fill="${c}"/>
+      <line x1="0" y1="24" x2="0" y2="38" stroke="${c}" stroke-width="4"/>
+      <circle cx="0" cy="42" r="4" fill="${c}"/></g>`;
+  }
+  function pentacle(cx, cy, s, c) {
+    return `<g transform="translate(${cx} ${cy}) scale(${s / 40})">
+      <circle r="30" fill="none" stroke="${c}" stroke-width="3.5"/>
+      <circle r="24" fill="none" stroke="${c}" stroke-width="1" opacity=".6"/>
+      ${star(0, 0, 22, 8.4, 5, `fill="none" stroke="${c}" stroke-width="2.4" stroke-linejoin="round"`)}
+      <circle r="3" fill="${c}"/></g>`;
+  }
+  const SUIT_FN = { wands: wand, cups: cup, swords: sword, pentacles: pentacle };
+
+  /* ---------- Старшие Арканы ---------- */
+  const S = `fill="none" stroke="${GOLD}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"`;
+  const T = `fill="none" stroke="${GOLD}" stroke-width="1.2" stroke-linecap="round"`;
+  const FG = `fill="${GOLD}"`;
+
+  function spiral(cx, cy, turns, scale) {
+    let d = '';
+    for (let i = 0; i <= turns * 40; i++) {
+      const t = i / 40 * Math.PI * 2, r = scale * t;
+      d += (i ? 'L' : 'M') + f(cx + Math.cos(t) * r) + ',' + f(cy + Math.sin(t) * r);
+    }
+    return d;
+  }
+  const lemn = (cx, cy, w) => `M${cx - w},${cy} C${cx - w},${cy - w * .7} ${cx - 4},${cy - w * .7} ${cx},${cy} C${cx + 4},${cy + w * .7} ${cx + w},${cy + w * .7} ${cx + w},${cy} C${cx + w},${cy - w * .7} ${cx + 4},${cy - w * .7} ${cx},${cy} C${cx - 4},${cy + w * .7} ${cx - w},${cy + w * .7} ${cx - w},${cy}Z`;
+
+  function key(x, y, rot) {
+    return `<g transform="translate(${x} ${y}) rotate(${rot})"><circle cx="0" cy="-26" r="8" ${S}/><circle cx="0" cy="-26" r="3" ${FG}/>
+      <line x1="0" y1="-18" x2="0" y2="26" ${S}/><path d="M0,16 h8 v4 h-8 M0,24 h10 v4 h-10" ${S}/></g>`;
+  }
+  function tower(x, y, w, h) {
+    return `<path d="M${x - w / 2},${y} L${x - w / 2},${y - h} L${x + w / 2},${y - h} L${x + w / 2},${y}" ${S}/>
+      <path d="M${x - w / 2 - 2},${y - h} h${w / 4 + 1} v-5 h${w / 4} v5 h${w / 4} v-5 h${w / 4 + 1} v5" ${T}/>
+      <rect x="${x - 2}" y="${y - h + 10}" width="4" height="7" ${FG}/>`;
+  }
+
+  const MAJOR_ART = [
+    // 0 Шут
+    a => `<path d="${spiral(100, 165, 3.2, 3.4)}" ${S}/>${star(150, 92, 12, 3, 4, FG)}
+      <circle cx="58" cy="95" r="14" ${S}/><circle cx="58" cy="95" r="6" fill="${a}"/>
+      <path d="M118,250 L150,232 L160,250" ${S}/><path d="M40,250 L118,250" ${T}/>
+      <circle cx="100" cy="165" r="5" fill="${a}">${pulse('r', '4;7;4', 2.5)}</circle>`,
+    // I Маг
+    a => `<path d="${lemn(100, 92, 28)}" ${S}>${pulse('stroke-opacity', '1;.5;1', 3)}</path>
+      <line x1="100" y1="118" x2="100" y2="215" ${S}/><circle cx="100" cy="114" r="6" fill="${a}"/>
+      ${rays(100, 114, 12, 20, 8, T)}
+      <path d="M58,170 L80,150 M142,170 L120,150" ${T}/>
+      <circle cx="46" cy="245" r="10" ${S}/><path d="M76,255 L88,235 L100,255Z" ${S}/>
+      <rect x="112" y="236" width="18" height="18" ${S}/><path d="M154,234 v22 M146,242 h16" ${S}/>`,
+    // II Жрица
+    a => `<rect x="44" y="88" width="16" height="160" ${S}/><rect x="140" y="88" width="16" height="160" ${S}/>
+      <rect x="40" y="80" width="24" height="8" ${FG}/><rect x="136" y="80" width="24" height="8" ${FG}/>
+      <path d="M100,108 m-30,0 a30,30 0 1,0 60,0 a24,24 0 1,1 -60,0Z" fill="${a}" opacity=".9"/>
+      <path d="M68,160 Q84,150 100,160 T132,160 M68,176 Q84,166 100,176 T132,176" ${T}/>
+      <rect x="84" y="200" width="32" height="22" rx="3" ${S}/><path d="M90,208 h20 M90,214 h14" ${T}/>
+      <circle cx="100" cy="140" r="2.5" ${FG}>${pulse('opacity', '1;.2;1', 2)}</circle>`,
+    // III Императрица
+    a => { let st = ''; for (let i = 0; i < 12; i++) { const t = (200 + i * 140 / 11) * Math.PI / 180; st += star(100 + Math.cos(t) * 66, 170 + Math.sin(t) * 66, 5, 2, 5, FG); }
+      return st + `<circle cx="100" cy="150" r="30" ${S}/><circle cx="100" cy="150" r="16" fill="${a}" opacity=".8"/>
+      <path d="M100,180 v44 M80,204 h40" ${S}/>
+      <path d="M46,250 Q50,214 58,196 M58,196 l-7,6 M58,206 l-8,6 M56,216 l-8,6 M154,250 Q150,214 142,196 M142,196 l7,6 M142,206 l8,6 M144,216 l8,6" ${T}/>`; },
+    // IV Император
+    a => `<path d="M100,110 L148,136 L148,196 L100,222 L52,196 L52,136Z" ${S}/>
+      <path d="M52,136 L100,162 L148,136 M100,162 V222" ${S}/>
+      <path d="M68,108 C50,98 46,76 64,74 C76,74 76,90 66,90" ${S}/><path d="M132,108 C150,98 154,76 136,74 C124,74 124,90 134,90" ${S}/>
+      <path d="M84,98 L88,82 L95,92 L100,76 L105,92 L112,82 L116,98Z" fill="${a}"/>
+      <path d="M30,250 L60,226 L82,244 L110,218 L170,250" ${T}/>`,
+    // V Иерофант
+    a => `<line x1="100" y1="80" x2="100" y2="200" ${S}/><path d="M86,96 h28 M80,112 h40 M74,128 h52" ${S}/>
+      <circle cx="100" cy="80" r="5" fill="${a}"/>${rays(100, 80, 9, 16, 12, T)}
+      ${key(78, 228, -32)}${key(122, 228, 32)}
+      <path d="M50,196 Q100,176 150,196" ${T}/>`,
+    // VI Влюблённые
+    a => `<circle cx="80" cy="182" r="38" ${S}/><circle cx="120" cy="182" r="38" ${S}/>
+      <path d="M100,160 C108,150 120,160 100,180 C80,160 92,150 100,160Z" fill="${a}">${pulse('opacity', '1;.55;1', 1.6)}</path>
+      <circle cx="100" cy="94" r="14" ${FG}/><g>${rays(100, 94, 19, 28, 16, T)}${spin(100, 94, 30)}</g>
+      <path d="M58,100 Q72,82 82,96 M142,100 Q128,82 118,96" ${S}/>
+      <path d="M48,244 h104" ${T}/>`,
+    // VII Колесница
+    a => { let st = ''; for (let i = 0; i < 7; i++) st += star(52 + i * 16, 84, 4, 1.6, 5, FG);
+      return st + `<path d="M44,94 Q100,110 156,94" ${T}/>
+      <rect x="66" y="118" width="68" height="70" ${S}/><path d="M80,170 L100,132 L120,170" ${S}/><path d="M88,158 h24" ${T}/>
+      <g>${['<circle cx="66" cy="222" r="20" ' + S + '/>', rays(66, 222, 0, 20, 6, T)].join('')}${spin(66, 222, 8)}</g>
+      <g>${['<circle cx="134" cy="222" r="20" ' + S + '/>', rays(134, 222, 0, 20, 6, T)].join('')}${spin(134, 222, 8)}</g>
+      <circle cx="40" cy="160" r="9" fill="${LIGHT}" opacity=".85"/><circle cx="160" cy="160" r="9" fill="#000" stroke="${GOLD}"/>`; },
+    // VIII Сила
+    a => `<path d="${lemn(100, 86, 22)}" ${S}/>
+      ${star(100, 168, 50, 34, 18, `fill="${a}" opacity=".25" stroke="${GOLD}" stroke-width="1.4"`)}
+      <circle cx="100" cy="168" r="28" ${S}/><path d="M88,162 h6 M106,162 h6 M94,180 Q100,186 106,180" ${S}/>
+      <path d="M48,238 Q100,262 152,238" ${S}/>${[60, 80, 100, 120, 140].map((x, i) => `<circle cx="${x}" cy="${244 + (i === 2 ? 6 : i % 2 ? 4 : 0)}" r="4.5" fill="${a}"/>`).join('')}`,
+    // IX Отшельник
+    a => `<line x1="56" y1="96" x2="124" y2="250" ${S}/><path d="M118,98 L118,108" ${S}/>
+      <path d="M104,108 h28 l6,12 v40 l-6,12 h-28 l-6,-12 v-40Z" ${S}/>
+      ${star(118, 140, 15, 9, 6, `fill="${a}"`)}
+      <circle cx="118" cy="140" r="30" fill="${a}" opacity=".15">${pulse('r', '24;36;24', 3)}</circle>
+      <path d="M30,250 L74,196 L98,226 L130,186 L172,250" ${T}/>`,
+    // X Колесо Фортуны
+    a => `<g>${spin(100, 165, 40)}<circle cx="100" cy="165" r="66" ${S}/><circle cx="100" cy="165" r="44" ${S}/>
+      ${rays(100, 165, 12, 66, 8, T)}${rays(100, 165, 66, 72, 24, T)}
+      ${[0, 90, 180, 270].map(d => { const t = d * Math.PI / 180; return `<circle cx="${f(100 + Math.cos(t) * 55)}" cy="${f(165 + Math.sin(t) * 55)}" r="5" fill="${a}"/>`; }).join('')}</g>
+      <circle cx="100" cy="165" r="12" fill="${a}"/>`,
+    // XI Справедливость
+    a => `<line x1="100" y1="76" x2="100" y2="250" ${S}/><path d="M92,250 h16" ${S}/>
+      <path d="M86,92 h28" ${S}/><circle cx="100" cy="76" r="5" fill="${a}"/>
+      <g><line x1="46" y1="120" x2="154" y2="120" ${S}/>
+      <path d="M46,120 L30,178 M46,120 L62,178 M154,120 L138,178 M154,120 L170,178" ${T}/>
+      <path d="M26,178 Q46,198 66,178Z" fill="${a}" opacity=".85"/><path d="M134,178 Q154,198 174,178Z" fill="${a}" opacity=".85"/>
+      <animateTransform attributeName="transform" type="rotate" values="-4 100 120;4 100 120;-4 100 120" dur="5s" repeatCount="indefinite"/></g>`,
+    // XII Повешенный
+    a => `<path d="M50,82 h100 M62,82 v-8 M138,82 v-8" ${S}/><line x1="100" y1="82" x2="100" y2="104" ${S}/>
+      <line x1="100" y1="104" x2="100" y2="186" ${S}/><path d="M100,128 L124,128 L124,104" ${S}/>
+      <path d="M100,186 L80,166 M100,186 L120,166" ${S}/>
+      <circle cx="100" cy="204" r="13" ${S}/><circle cx="100" cy="204" r="22" fill="${a}" opacity=".25"/>
+      <g>${rays(100, 204, 24, 36, 12, T)}${spin(100, 204, 20, -1)}</g>`,
+    // XIII Смерть
+    a => `<path d="M30,226 h140" ${S}/>
+      <path d="M70,226 a30,30 0 0,1 60,0" fill="${a}" opacity=".85"/><g>${rays(100, 226, 36, 50, 9, T, 180)}</g>
+      ${tower(48, 226, 16, 40)}${tower(152, 226, 16, 40)}
+      ${[0, 72, 144, 216, 288].map(d => { const t = (d - 90) * Math.PI / 180; return `<circle cx="${f(100 + Math.cos(t) * 14)}" cy="${f(130 + Math.sin(t) * 14)}" r="13" ${S}/>`; }).join('')}
+      <circle cx="100" cy="130" r="7" fill="${a}"/><path d="M100,157 v36 M100,176 q12,-10 18,-4" ${S}/>
+      <path d="M40,250 Q70,240 100,250 T160,250" ${T}/>`,
+    // XIV Умеренность
+    a => `<path d="M88,84 h24 v24 h-24Z" ${S}/><path d="M100,88 L109,104 L91,104Z" fill="${a}"/>
+      ${cup(64, 138, 22, GOLD)}${cup(136, 196, 22, GOLD)}
+      <path d="M72,126 C110,124 120,150 130,182" fill="none" stroke="${a}" stroke-width="2.5" stroke-dasharray="4 6">
+        <animate attributeName="stroke-dashoffset" values="20;0" dur="1.2s" repeatCount="indefinite"/></path>
+      <path d="M40,250 Q100,226 160,250" ${T}/><circle cx="150" cy="236" r="7" ${S}/>`,
+    // XV Дьявол
+    a => `<circle cx="100" cy="128" r="40" ${S}/>${star(100, 128, 36, 13.8, 5, `fill="none" stroke="${a}" stroke-width="2.2"`, 90)}
+      <path d="M72,94 C60,78 62,62 70,56 M128,94 C140,78 138,62 130,56" ${S}/>
+      <rect x="66" y="196" width="68" height="20" ${S}/>
+      <path d="M78,216 v10 M122,216 v10" ${S}/><circle cx="72" cy="234" r="8" ${S}/><circle cx="128" cy="234" r="8" ${S}/>
+      <circle cx="72" cy="252" r="6" ${FG}/><circle cx="128" cy="252" r="6" ${FG}/>
+      <path d="M100,168 C108,176 106,186 100,190 C94,186 92,176 100,168Z" fill="${a}">${pulse('opacity', '1;.4;1', .9)}</path>`,
+    // XVI Башня
+    a => `<path d="M72,250 L78,118 L122,118 L128,250" ${S}/><path d="M72,250 h56" ${S}/>
+      <rect x="92" y="140" width="16" height="22" rx="8" ${S}/><rect x="86" y="190" width="12" height="16" rx="6" ${T}/><rect x="104" y="208" width="12" height="16" rx="6" ${T}/>
+      <g transform="rotate(24 130 104)"><path d="M112,110 L114,94 L121,102 L128,88 L135,102 L142,94 L144,110Z" fill="${a}"/></g>
+      <path d="M42,64 L72,100 L60,104 L96,140" fill="none" stroke="${LIGHT}" stroke-width="3" stroke-linejoin="round">${pulse('opacity', '1;0;1;1;0;1', 2.2)}</path>
+      ${[[50, 140], [150, 150], [40, 190], [160, 196], [56, 228]].map(([x, y]) => `<path d="M${x},${y - 7} l4,7 l-4,7 l-4,-7Z" fill="${a}"/>`).join('')}`,
+    // XVII Звезда
+    a => { let st = ''; const pos = [[50, 86], [150, 86], [42, 136], [158, 136], [60, 184], [140, 184], [100, 64]];
+      pos.forEach(([x, y], i) => st += `<g>${star(x, y, 8, 2.5, 8, FG, 0)}${pulse('opacity', '1;.3;1', 1.5 + i * .3)}</g>`);
+      return st + `<g>${star(100, 128, 40, 9, 8, `fill="${a}"`, 0)}${spin(100, 128, 60)}</g>${star(100, 128, 26, 6, 8, `fill="${LIGHT}"`, 22.5)}
+      <path d="M30,228 Q50,218 70,228 T110,228 T150,228 T190,228 M30,244 Q50,234 70,244 T110,244 T150,244 T190,244" ${T}/>
+      ${cup(72, 206, 13, GOLD)}<path d="M80,196 Q96,200 100,224" ${T}/>`; },
+    // XVIII Луна
+    a => `<g>${rays(100, 112, 40, 52, 32, T)}${spin(100, 112, 90, -1)}</g>
+      <circle cx="100" cy="112" r="36" fill="${a}" opacity=".9"/><circle cx="114" cy="104" r="32" fill="#0b0920" opacity=".9"/>
+      ${tower(42, 220, 18, 54)}${tower(158, 220, 18, 54)}
+      <path d="M100,252 C80,236 120,222 100,206 C86,196 106,186 100,176" ${S} stroke-dasharray="3 5"/>
+      <path d="M30,250 Q100,236 170,250" ${S}/>
+      ${[[70, 160], [130, 166], [100, 172]].map(([x, y]) => `<path d="M${x},${y - 6} q4,6 0,10 q-4,-4 0,-10Z" ${FG}/>`).join('')}`,
+    // XIX Солнце
+    a => { let wr = ''; for (let i = 0; i < 12; i++) { const t = (i * 30 + 15) * Math.PI / 180; const x1 = 100 + Math.cos(t) * 44, y1 = 140 + Math.sin(t) * 44, x2 = 100 + Math.cos(t) * 66, y2 = 140 + Math.sin(t) * 66; wr += `<path d="M${f(x1)},${f(y1)} Q${f((x1 + x2) / 2 + Math.sin(t) * 6)},${f((y1 + y2) / 2 - Math.cos(t) * 6)} ${f(x2)},${f(y2)}" ${T}/>`; }
+      return `<g>${rays(100, 140, 42, 70, 12, S)}${wr}${spin(100, 140, 50)}</g>
+      <circle cx="100" cy="140" r="36" fill="${a}"/><circle cx="100" cy="140" r="26" fill="none" stroke="#5a2a00" stroke-opacity=".35" stroke-width="2"/>
+      <path d="M30,238 h140 M30,238 v14 M170,238 v14" ${S}/>${[52, 100, 148].map(x => `${star(x, 228, 8, 4, 8, FG, 0)}<line x1="${x}" y1="236" x2="${x}" y2="250" ${T}/>`).join('')}`; },
+    // XX Суд
+    a => `<g>${rays(100, 66, 14, 54, 15, T, 20)}</g>
+      <path d="M50,80 L120,140 L128,132 L60,72Z" fill="${a}"/><path d="M118,130 C134,126 142,140 132,150 Z" fill="${a}"/>
+      <path d="M78,100 v26 h22 v-26 M89,104 v18 M80,113 h18" ${T}/>
+      ${[56, 100, 144].map((x, i) => `<rect x="${x - 14}" y="${214 - i % 2 * 6}" width="28" height="34" rx="3" ${S}/>
+        <circle cx="${x}" cy="${200 - i % 2 * 6}" r="8" ${S}><animate attributeName="cy" values="${206 - i % 2 * 6};${196 - i % 2 * 6};${206 - i % 2 * 6}" dur="${3 + i * .5}s" repeatCount="indefinite"/></circle>`).join('')}`,
+    // XXI Мир
+    a => `<ellipse cx="100" cy="165" rx="46" ry="70" fill="none" stroke="${a}" stroke-width="7" stroke-dasharray="2 5"/>
+      <ellipse cx="100" cy="165" rx="38" ry="62" ${T}/>
+      <path d="${lemn(100, 94, 10)}" ${S}/><path d="${lemn(100, 236, 10)}" ${S}/>
+      <g>${star(100, 165, 22, 8, 8, `fill="${LIGHT}"`, 0)}${spin(100, 165, 24)}</g>
+      <circle cx="40" cy="84" r="10" ${S}/><path d="M150,92 L160,74 L170,92Z" ${S}/>
+      <rect x="30" y="236" width="18" height="18" ${S}/><path d="M152,236 a10,10 0 1,0 14,14 a12,12 0 0,1 -14,-14Z" ${FG}/>`
+  ];
+
+  /* ---------- Раскладка очков младших карт ---------- */
+  const PIPS = {
+    1: [[0, 0]], 2: [[0, -.6], [0, .6]], 3: [[0, -.72], [0, 0], [0, .72]],
+    4: [[-.5, -.5], [.5, -.5], [-.5, .5], [.5, .5]],
+    5: [[-.5, -.55], [.5, -.55], [0, 0], [-.5, .55], [.5, .55]],
+    6: [[-.5, -.65], [.5, -.65], [-.5, 0], [.5, 0], [-.5, .65], [.5, .65]],
+    7: [[-.5, -.7], [.5, -.7], [0, -.35], [-.5, 0], [.5, 0], [-.5, .7], [.5, .7]],
+    8: [[-.5, -.72], [.5, -.72], [0, -.36], [-.5, 0], [.5, 0], [0, .36], [-.5, .72], [.5, .72]],
+    9: [[-.5, -.78], [.5, -.78], [-.5, -.26], [.5, -.26], [0, 0], [-.5, .26], [.5, .26], [-.5, .78], [.5, .78]],
+    10: [[-.5, -.78], [.5, -.78], [0, -.52], [-.5, -.26], [.5, -.26], [-.5, .26], [.5, .26], [0, .52], [-.5, .78], [.5, .78]]
+  };
+
+  function crown(type, c, a) {
+    const y = 96;
+    if (type === 11) return `${star(100, y, 12, 4, 5, `fill="${a}"`)}<circle cx="100" cy="${y}" r="20" fill="none" stroke="${c}" stroke-width="1.4"/>`;
+    if (type === 12) return `<path d="M70,${y + 12} Q72,${y - 14} 100,${y - 18} Q128,${y - 14} 130,${y + 12}" fill="none" stroke="${c}" stroke-width="2.4"/>
+      <path d="M78,${y - 2} L66,${y - 16} M122,${y - 2} L134,${y - 16} M86,${y - 10} L80,${y - 24} M114,${y - 10} L120,${y - 24}" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M100,${y - 22} l8,10 l-8,10 l-8,-10Z" fill="${a}"/>`;
+    if (type === 13) return `<path d="M100,${y + 8} m-24,0 a24,24 0 1,1 48,0" fill="none" stroke="${c}" stroke-width="2.4"/>
+      <path d="M100,${y - 18} m-16,0 a16,16 0 1,0 32,0 a12,12 0 1,1 -32,0Z" fill="${a}"/>${star(100, y - 4, 5, 2, 5, `fill="${c}"`)}`;
+    return `<path d="M72,${y + 14} L76,${y - 12} L88,${y + 2} L100,${y - 22} L112,${y + 2} L124,${y - 12} L128,${y + 14}Z" fill="none" stroke="${c}" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M72,${y + 20} h56" stroke="${c}" stroke-width="3"/>${[76, 100, 124].map((x, i) => `<circle cx="${x}" cy="${y - (i === 1 ? 26 : 16)}" r="4" fill="${a}"/>`).join('')}`;
+  }
+
+  function minorArt(card, accent, rnd) {
+    const fn = SUIT_FN[card.suit];
+    const r = card.rank;
+    if (r === 1) {
+      return `<g>${rays(100, 165, 46, 74, 24, `stroke="${accent}" stroke-opacity=".5" stroke-width="1.2"`)}${spin(100, 165, 70)}</g>
+        <circle cx="100" cy="165" r="48" fill="${accent}" opacity=".12">${pulse('r', '44;54;44', 4)}</circle>
+        <circle cx="100" cy="165" r="56" fill="none" stroke="${GOLD}" stroke-width="1" stroke-dasharray="2 4"/>
+        ${fn(100, 165, 54, GOLD)}`;
+    }
+    if (r <= 10) {
+      const pts = PIPS[r], sz = r <= 3 ? 30 : r <= 6 ? 24 : 19;
+      let s = `<rect x="38" y="70" width="124" height="190" rx="62" fill="${accent}" opacity=".06"/>`;
+      pts.forEach(([x, y], i) => {
+        s += `<g>${fn(f(100 + x * 54), f(165 + y * 86), sz, i % 2 ? GOLD : accent)}${pulse('opacity', '1;.75;1', 3 + (rnd() * 2).toFixed(1))}</g>`;
+      });
+      return s;
+    }
+    // придворные
+    return `<path d="M54,260 L54,120 Q54,70 100,62 Q146,70 146,120 L146,260" fill="${accent}" fill-opacity=".07" stroke="${GOLD}" stroke-width="1.4"/>
+      <path d="M62,260 L62,124 Q62,80 100,72 Q138,80 138,124 L138,260" fill="none" stroke="${GOLD}" stroke-width=".8" stroke-dasharray="3 4"/>
+      ${crown(r, GOLD, accent)}
+      <circle cx="100" cy="182" r="40" fill="${accent}" opacity=".12"/>
+      ${fn(100, 184, 44, GOLD)}
+      <path d="M70,248 h60" stroke="${GOLD}" stroke-width="1.2"/>`;
+  }
+
+  /* ---------- Общая рамка ---------- */
+  function sprinkle(rnd, n, color) {
+    let s = '';
+    for (let i = 0; i < n; i++) {
+      const x = 22 + rnd() * 156, y = 52 + rnd() * 230, r = rnd() * 1.3 + .3;
+      s += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r)}" fill="${color}" opacity="${f(.25 + rnd() * .6)}"/>`;
+    }
+    return s;
+  }
+
+  function corner(x, y, sx, sy) {
+    return `<path d="M${x},${y + sy * 16} L${x},${y} L${x + sx * 16},${y}" fill="none" stroke="${GOLD}" stroke-width="1.5"/>
+      <path d="M${x + sx * 5},${y + sy * 5} l${sx * 4},${sy * -4} l${sx * 4},${sy * 4} l${sx * -4},${sy * 4}Z" fill="${GOLD}"/>`;
+  }
+
+  function front(card) {
+    const id = 'c' + (++uid);
+    const rnd = rng(hash(card.id));
+    let c1, c2, accent;
+    if (card.arcana === 'major') {
+      [c1, c2] = PALETTE.major[card.num % 4];
+      accent = MAJOR_ACCENTS[card.num];
+    } else {
+      [c1, c2, accent] = PALETTE[card.suit];
+    }
+    const art = card.arcana === 'major' ? MAJOR_ART[card.num](accent) : minorArt(card, accent, rnd);
+    const title = card.arcana === 'major' ? card.name : card.name.split(' ')[0];
+    const sub = card.arcana === 'major' ? 'Старший Аркан' : card.name.split(' ').slice(1).join(' ');
+    const L = title.length;
+    const fs = L <= 7 ? 18 : L <= 9 ? 16 : L <= 11 ? 14 : 12;
+    const fit = L > 12 ? ' textLength="132" lengthAdjust="spacingAndGlyphs"' : '';
+    return `<svg class="card-svg" viewBox="0 0 200 340" xmlns="http://www.w3.org/2000/svg" aria-label="${card.name}">
+      <defs>
+        <radialGradient id="${id}g" cx="50%" cy="42%" r="75%"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient>
+        <radialGradient id="${id}h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="${accent}" stop-opacity=".35"/><stop offset="1" stop-color="${accent}" stop-opacity="0"/></radialGradient>
+        <clipPath id="${id}c"><rect x="16" y="54" width="168" height="216"/></clipPath>
+      </defs>
+      <rect width="200" height="340" rx="14" fill="url(#${id}g)"/>
+      ${sprinkle(rnd, 40, LIGHT)}
+      <circle cx="100" cy="165" r="92" fill="url(#${id}h)"/>
+      <rect x="7" y="7" width="186" height="326" rx="10" fill="none" stroke="${GOLD}" stroke-width="1.6"/>
+      <rect x="13" y="13" width="174" height="314" rx="7" fill="none" stroke="${GOLD}" stroke-width=".6" stroke-opacity=".7"/>
+      ${corner(18, 18, 1, 1)}${corner(182, 18, -1, 1)}${corner(18, 322, 1, -1)}${corner(182, 322, -1, -1)}
+      <text x="100" y="42" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="20" font-weight="700" fill="${GOLD}" letter-spacing="2" style="font-variant-numeric:lining-nums">${card.numeral}</text>
+      <path d="M70,50 h60" stroke="${GOLD}" stroke-width=".8"/>
+      <g clip-path="url(#${id}c)">${art}</g>
+      <path d="M26,274 Q100,266 174,274 L174,312 Q100,304 26,312Z" fill="#000" fill-opacity=".38" stroke="${GOLD}" stroke-width="1"/>
+      <text x="100" y="292" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="${fs}" font-weight="700" fill="${LIGHT}" letter-spacing="1"${fit}>${title.toUpperCase()}</text>
+      <text x="100" y="302" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="6.5" fill="${GOLD}" letter-spacing="2">${sub.toUpperCase()}</text>
+      <circle cx="100" cy="320" r="2" fill="${GOLD}"/>
+    </svg>`;
+  }
+
+  function back() {
+    const id = 'b' + (++uid);
+    let petals = '';
+    for (let i = 0; i < 12; i++) petals += `<ellipse cx="100" cy="132" rx="9" ry="38" transform="rotate(${i * 30} 100 170)" fill="none" stroke="${GOLD}" stroke-width="1"/>`;
+    return `<svg class="card-svg" viewBox="0 0 200 340" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="${id}g" cx="50%" cy="50%" r="70%"><stop offset="0" stop-color="#2d1b64"/><stop offset=".6" stop-color="#140c35"/><stop offset="1" stop-color="#07051a"/></radialGradient>
+        <pattern id="${id}p" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M8,0 L16,8 L8,16 L0,8Z" fill="none" stroke="${GOLD}" stroke-opacity=".12" stroke-width=".8"/></pattern>
+      </defs>
+      <rect width="200" height="340" rx="14" fill="url(#${id}g)"/>
+      <rect x="10" y="10" width="180" height="320" rx="8" fill="url(#${id}p)"/>
+      <rect x="7" y="7" width="186" height="326" rx="10" fill="none" stroke="${GOLD}" stroke-width="1.6"/>
+      <rect x="14" y="14" width="172" height="312" rx="7" fill="none" stroke="${GOLD}" stroke-width=".6"/>
+      ${corner(20, 20, 1, 1)}${corner(180, 20, -1, 1)}${corner(20, 320, 1, -1)}${corner(180, 320, -1, -1)}
+      <circle cx="100" cy="170" r="76" fill="none" stroke="${GOLD}" stroke-width="1.2"/>
+      <circle cx="100" cy="170" r="70" fill="none" stroke="${GOLD}" stroke-width=".6" stroke-dasharray="1 4"/>
+      ${petals}
+      ${star(100, 170, 64, 50, 12, `fill="none" stroke="${GOLD}" stroke-width=".8" stroke-opacity=".6"`)}
+      <circle cx="100" cy="170" r="26" fill="#0a0722" stroke="${GOLD}" stroke-width="1.4"/>
+      <path d="M80,170 Q100,152 120,170 Q100,188 80,170Z" fill="none" stroke="${GOLD}" stroke-width="1.6"/>
+      <circle cx="100" cy="170" r="6" fill="${GOLD}"/>
+      ${star(100, 66, 9, 3, 4, `fill="${GOLD}"`)}${star(100, 274, 9, 3, 4, `fill="${GOLD}"`)}
+      <path d="M100,40 m-12,0 a12,12 0 1,0 24,0 a9,9 0 1,1 -24,0Z" fill="${GOLD}" opacity=".8"/>
+      <path d="M100,300 m-12,0 a12,12 0 1,1 24,0 a9,9 0 1,0 -24,0Z" fill="${GOLD}" opacity=".8"/>
+    </svg>`;
+  }
+
+  window.Taro = window.Taro || {};
+  window.Taro.art = { front, back, symbol: (suit, s, c) => SUIT_FN[suit](0, 0, s, c || GOLD) };
+})();
+
+</script>
+  <script>
+/* Расклады и генерация толкования */
+(function () {
+  'use strict';
+  const { DECK, SUITS } = window.Taro;
+
+  const SPREADS = [
+    { id: 'one', name: 'Одна карта', hint: 'быстрый ответ', cols: 1, rows: 1,
+      pos: [{ n: 'Ответ', d: 'суть ответа на ваш вопрос', x: 0, y: 0 }] },
+    { id: 'three', name: 'Прошлое · Настоящее · Будущее', short: 'Время', hint: '3 карты', cols: 3, rows: 1,
+      pos: [{ n: 'Прошлое', d: 'что привело к ситуации', x: 0, y: 0 },
+        { n: 'Настоящее', d: 'что происходит сейчас', x: 1, y: 0 },
+        { n: 'Будущее', d: 'куда всё движется', x: 2, y: 0 }] },
+    { id: 'path', name: 'Ситуация · Препятствие · Совет', short: 'Путь', hint: '3 карты', cols: 3, rows: 1,
+      pos: [{ n: 'Ситуация', d: 'суть происходящего', x: 0, y: 0 },
+        { n: 'Препятствие', d: 'что мешает', x: 1, y: 0, block: true },
+        { n: 'Совет', d: 'как действовать', x: 2, y: 0, advice: true }] },
+    { id: 'love', name: 'Отношения', hint: '5 карт', cols: 3, rows: 2,
+      pos: [{ n: 'Вы', d: 'ваши чувства и позиция', x: 0, y: 0 },
+        { n: 'Связь', d: 'что вас объединяет', x: 1, y: 0 },
+        { n: 'Партнёр', d: 'чувства и позиция другого человека', x: 2, y: 0 },
+        { n: 'Препятствие', d: 'что мешает союзу', x: .5, y: 1, block: true },
+        { n: 'Перспектива', d: 'куда движутся отношения', x: 1.5, y: 1, outcome: true }] },
+    { id: 'cross', name: 'Крест судьбы', short: 'Крест', hint: '5 карт', cols: 3, rows: 3,
+      pos: [{ n: 'Суть', d: 'центр ситуации', x: 1, y: 1 },
+        { n: 'Прошлое', d: 'корни вопроса', x: 0, y: 1 },
+        { n: 'Будущее', d: 'ближайшее развитие', x: 2, y: 1 },
+        { n: 'Помогает', d: 'на что опереться', x: 1, y: 0 },
+        { n: 'Мешает', d: 'что сдерживает', x: 1, y: 2, block: true }] }
+  ];
+
+  const THEMES = {
+    love: { label: 'любовь и отношения', re: /любов|любит|отношени|парн|девушк|муж|жен[аыуе]|брак|свадьб|чувств|свидани|бывш|встреч|роман|партн[её]р|сердц|помир|расста|измен|ревн/ },
+    work: { label: 'работа и призвание', re: /работ|карьер|начальн|коллег|проект|бизнес|должност|собеседован|ваканс|уволь|увольн|повышен|професс|учёб|учеб|экзамен|институт|дело/ },
+    money: { label: 'деньги и благополучие', re: /деньг|денег|финанс|доход|долг|кредит|зарплат|покупк|купить|продат|инвест|богат|квартир|ипотек|наследств/ },
+    health: { label: 'здоровье и силы', re: /здоров|болезн|болит|самочувств|лечен|врач|операци|бол[ье]|энерги|устал|сон|похуд/ },
+    self: { label: 'путь и внутренний мир', re: /себя|себе|предназнач|смысл|путь|душ|страх|счасть|изменит|переезд|переех|выбор|решени/ }
+  };
+
+  const SUIT_THEME = {
+    love: { cups: 'В вопросах сердца Кубки звучат особенно сильно — речь о настоящих чувствах.', swords: 'Мечи в любовном вопросе говорят о словах, мыслях и, возможно, недосказанности.', wands: 'Жезлы приносят в отношения страсть и притяжение.', pentacles: 'Пентакли просят опереться на поступки, быт и надёжность.' },
+    work: { pentacles: 'Для дел и работы Пентакли — карты самой сути: результат будет осязаемым.', wands: 'Жезлы в рабочем вопросе — энергия, инициатива и амбиции.', swords: 'Мечи напоминают о переговорах, решениях и умении отстаивать позицию.', cups: 'Кубки говорят о климате в коллективе и о том, приносит ли дело радость.' },
+    money: { pentacles: 'Пентакли — масть денег: карта напрямую касается ваших финансов.', wands: 'Жезлы — деньги через активность и смелые шаги.', swords: 'Мечи советуют трезвый расчёт и внимательность к договорам.', cups: 'Кубки подсказывают, что ваше отношение к деньгам эмоционально.' },
+    health: { pentacles: 'Пентакли — тело: обратите внимание на режим и базовые потребности.', wands: 'Жезлы — жизненная энергия и тонус.', swords: 'Мечи указывают на влияние мыслей и стресса на самочувствие.', cups: 'Кубки — эмоциональное состояние, которое отражается на теле.' }
+  };
+
+  const ELEMENT_TXT = {
+    wands: 'Преобладает Огонь (Жезлы): ситуация требует действий, смелости и инициативы. Энергии много — главное направить её.',
+    cups: 'Преобладает Вода (Кубки): в центре всего чувства, отношения и интуиция. Решение подскажет сердце.',
+    swords: 'Преобладает Воздух (Мечи): много мыслей, переживаний и, возможно, напряжения. Нужны ясность и честный разговор.',
+    pentacles: 'Преобладает Земля (Пентакли): вопрос материальный и практичный. Результат зависит от последовательных шагов.'
+  };
+
+  const COMBOS = [
+    [['M16', 'M17'], 'Башня и Звезда рядом: после потрясения обязательно придёт исцеление и новая надежда.'],
+    [['M18', 'M19'], 'Луна и Солнце вместе: из тумана сомнений вы выйдете к полной ясности.'],
+    [['M13', 'M0'], 'Смерть и Шут: старое завершается, чтобы вы начали с чистого листа.'],
+    [['M6', 'C2'], 'Влюблённые и Двойка Кубков — сильнейший знак взаимности.'],
+    [['M10', 'M21'], 'Колесо Фортуны и Мир: судьба ведёт к счастливому завершению цикла.'],
+    [['M1', 'W1'], 'Маг и Туз Жезлов: идеальный момент начать задуманное.'],
+    [['M15', 'M6'], 'Дьявол и Влюблённые: страсть сильна, но важно не потерять себя.'],
+    [['M9', 'M2'], 'Отшельник и Жрица: ответ стоит искать не вовне, а в тишине внутри себя.'],
+    [['S3', 'C2'], 'Тройка Мечей и Двойка Кубков: возможна ревность или третий человек в отношениях.'],
+    [['P10', 'C10'], 'Десятки Пентаклей и Кубков: полная чаша — и в доме, и в сердце.']
+  ];
+
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+  function detectTheme(q) {
+    const t = (q || '').toLowerCase();
+    for (const k of Object.keys(THEMES)) if (THEMES[k].re.test(t)) return k;
+    return 'general';
+  }
+
+  function score(card, reversed) {
+    if (!reversed) return card.pol;
+    return card.pol > 0 ? -0.5 : card.pol < 0 ? 0.6 : -0.3;
+  }
+
+  function cardText(draw, spread, theme) {
+    const { card, reversed, posIndex } = draw;
+    const pos = spread.pos[posIndex];
+    const base = reversed ? card.rev : card.up;
+    let extra = '';
+    if (card.arcana === 'minor' && SUIT_THEME[theme] && Math.random() < 0.8) extra = SUIT_THEME[theme][card.suit];
+    if (card.arcana === 'major') extra = pick([
+      'Это Старший Аркан — здесь действует сила судьбы, а не случайность.',
+      'Старший Аркан в этой позиции показывает важный жизненный урок.',
+      'Как Старший Аркан, карта придаёт позиции особый вес.'
+    ]);
+    if (pos.block && !reversed && card.pol > 0) extra += ' Даже светлая карта в позиции препятствия предупреждает: избыток этого качества может мешать.';
+    if (pos.block && card.pol < 0) extra += ' Именно здесь главный узел — над ним стоит поработать.';
+    if (pos.advice) extra += ' Совет карты: ' + card.advice;
+    return { base, extra: extra.trim() };
+  }
+
+  function summarize(draws, spread, question, silent) {
+    const theme = detectTheme(question);
+    const out = [];
+    const n = draws.length;
+
+    // вступление
+    if (silent) out.push(pick(['Вы держите вопрос в мыслях — и карты отвечают именно на него.', 'Ваш вопрос остался невысказанным, но колода его услышала.']));
+    else if (theme !== 'general') out.push(`Вопрос касается темы «${THEMES[theme].label}». Вот что показывает расклад.`);
+    else out.push(pick(['Колода дала ясный ответ. Вот общая картина.', 'Карты сложились в цельную историю.']));
+
+    // сюжет: карты читаются вместе, по порядку позиций
+    const kw = d => {
+      if (d.reversed) {
+        const r = d.card.rev.split(/[,.:;—]/)[0].trim();
+        return `«${r.charAt(0).toLowerCase() + r.slice(1)}»`;
+      }
+      return `«${d.card.keywords.split(',')[0].trim()}»`;
+    };
+    const byPos = draws.slice().sort((a, b) => a.posIndex - b.posIndex);
+    if (spread.id === 'three') {
+      out.push(`История расклада: в прошлом главной была тема ${kw(byPos[0])} — ${byPos[0].card.name}. ` +
+        `Сейчас на первый план выходит ${kw(byPos[1])} — ${byPos[1].card.name}. ` +
+        `А дальше события движутся к теме ${kw(byPos[2])} — ${byPos[2].card.name}.`);
+      const p0 = score(byPos[0].card, byPos[0].reversed), p2 = score(byPos[2].card, byPos[2].reversed);
+      if (p2 > p0) out.push('Динамика положительная: будущее светлее прошлого, ситуация выправляется.');
+      else if (p2 < p0) out.push('Динамика тревожная: будущая карта тяжелее прошлой — стоит заранее подготовиться и не пускать всё на самотёк.');
+      else out.push('Динамика ровная: ситуация развивается в том же ключе, резких поворотов не видно.');
+    } else if (n > 1) {
+      out.push(byPos.map(d => `${spread.pos[d.posIndex].n} — ${kw(d)}`).join('; ') + '.');
+    }
+
+    // арканы
+    const majors = draws.filter(d => d.card.arcana === 'major').length;
+    if (n > 1) {
+      if (majors / n >= 0.6) out.push('Много Старших Арканов: ситуация судьбоносная, в ней действуют силы больше вас. Происходящее — часть важного жизненного этапа.');
+      else if (majors === 0) out.push('В раскладе только Младшие Арканы: всё в ваших руках, вопрос решается повседневными действиями и выбором.');
+    }
+
+    // стихии
+    const cnt = {};
+    draws.forEach(d => { if (d.card.suit) cnt[d.card.suit] = (cnt[d.card.suit] || 0) + 1; });
+    const top = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0];
+    if (top && n >= 3 && top[1] >= 2) out.push(ELEMENT_TXT[top[0]]);
+
+    // одинаковые достоинства
+    const ranks = {};
+    draws.forEach(d => { if (d.card.rank) ranks[d.card.rank] = (ranks[d.card.rank] || 0) + 1; });
+    Object.entries(ranks).forEach(([r, c]) => {
+      if (c >= 2) {
+        const rr = +r;
+        const msg = rr === 1 ? 'новые начинания приходят сразу с нескольких сторон' : rr <= 3 ? 'идёт период выбора и первых шагов' :
+          rr <= 6 ? 'вы в середине пути — важна устойчивость' : rr <= 10 ? 'близится завершение важного этапа' : 'большую роль играют конкретные люди вокруг вас';
+        out.push(`Несколько карт одного достоинства: ${msg}.`);
+      }
+    });
+
+    // перевёрнутые
+    const rev = draws.filter(d => d.reversed).length;
+    if (n > 1 && rev / n >= 0.6) out.push('Большинство карт перевёрнуты: энергия сейчас направлена внутрь или заблокирована. Не форсируйте события — сначала разберитесь в себе.');
+    else if (n > 2 && rev === 0) out.push('Все карты прямые: события развиваются открыто, без скрытых подводных камней.');
+
+    // сочетания
+    const ids = draws.map(d => d.card.id);
+    COMBOS.forEach(([pair, txt]) => { if (pair.every(p => ids.includes(p))) out.push(txt); });
+
+    // общий тон
+    const total = draws.reduce((s, d) => s + score(d.card, d.reversed), 0) / n;
+    // по канону расклад «Прошлое · Настоящее · Будущее» не даёт ответа «да/нет» — только тенденцию
+    let tone;
+    const verdict = null;
+    if (total > 0.55) tone = pick(['Общий тон расклада светлый: обстоятельства на вашей стороне.', 'Энергия расклада благоприятная — вы движетесь в верном направлении.']);
+    else if (total > 0.1) tone = 'Расклад скорее благоприятный: успех возможен, но потребует вашего участия.';
+    else if (total > -0.2) tone = 'Расклад неоднозначный: многое зависит от ваших решений в ближайшее время.';
+    else if (total > -0.6) tone = 'Карты предупреждают о трудностях — но предупреждён, значит вооружён.';
+    else tone = 'Расклад напряжённый: ситуация требует осторожности и честного взгляда на происходящее.';
+    out.push(tone);
+
+    // совет
+    const advDraw = draws.find(d => spread.pos[d.posIndex].advice) || draws[draws.length - 1];
+    const advice = advDraw.reversed && advDraw.card.arcana === 'major'
+      ? advDraw.card.advice + ' Но сначала уберите внутреннее сопротивление.'
+      : advDraw.card.advice;
+
+    return { theme, themeLabel: THEMES[theme] ? THEMES[theme].label : 'общий вопрос', paragraphs: out, verdict, advice, score: total };
+  }
+
+  function secureRandom() {
+    const a = new Uint32Array(1);
+    crypto.getRandomValues(a);
+    return a[0] / 4294967296;
+  }
+  function shuffled() {
+    const d = DECK.slice();
+    for (let i = d.length - 1; i > 0; i--) {
+      const j = Math.floor(secureRandom() * (i + 1));
+      [d[i], d[j]] = [d[j], d[i]];
+    }
+    return d;
+  }
+
+  window.Taro.reading = { SPREADS, summarize, cardText, shuffled, secureRandom, detectTheme, SUITS };
+})();
+
+</script>
+  <script>
+/* Живое звёздное небо: мерцание, параллакс, падающие звёзды */
+(function () {
+  'use strict';
+  const cv = document.getElementById('sky');
+  const ctx = cv.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W, H, dpr, stars = [], shooting = [], mx = 0, my = 0, tx = 0, ty = 0;
+
+  function resize() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = cv.width = innerWidth * dpr;
+    H = cv.height = innerHeight * dpr;
+    cv.style.width = innerWidth + 'px';
+    cv.style.height = innerHeight + 'px';
+    const n = Math.round(innerWidth * innerHeight / 5200);
+    stars = Array.from({ length: n }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      r: (Math.random() ** 2 * 1.6 + .3) * dpr,
+      d: Math.random() * .9 + .1,
+      p: Math.random() * Math.PI * 2,
+      s: Math.random() * .02 + .005,
+      c: Math.random() < .15 ? '255,214,150' : Math.random() < .3 ? '190,200,255' : '255,255,255'
+    }));
+  }
+  addEventListener('resize', resize);
+  addEventListener('pointermove', e => { tx = (e.clientX / innerWidth - .5); ty = (e.clientY / innerHeight - .5); });
+
+  window.Taro = window.Taro || {};
+  window.Taro.skyBoost = 0; // ускорение звёзд во время тасования
+
+  function frame() {
+    mx += (tx - mx) * .04; my += (ty - my) * .04;
+    ctx.clearRect(0, 0, W, H);
+    const boost = window.Taro.skyBoost;
+    for (const s of stars) {
+      s.p += s.s * (1 + boost * 4);
+      if (boost) { s.y -= s.d * boost * 2 * dpr; if (s.y < 0) s.y += H; }
+      const a = .35 + Math.sin(s.p) * .35 + .3;
+      const x = s.x - mx * 40 * s.d * dpr, y = s.y - my * 40 * s.d * dpr;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${s.c},${a.toFixed(3)})`;
+      ctx.arc(x, y, s.r, 0, 6.283);
+      ctx.fill();
+      if (s.r > 1.5 * dpr && a > .8) {
+        ctx.fillStyle = `rgba(${s.c},.12)`;
+        ctx.beginPath(); ctx.arc(x, y, s.r * 4, 0, 6.283); ctx.fill();
+      }
+    }
+    if (Math.random() < .004 + boost * .03) {
+      shooting.push({ x: Math.random() * W, y: Math.random() * H * .5, vx: (4 + Math.random() * 4) * dpr, vy: (2 + Math.random() * 2) * dpr, life: 1 });
+    }
+    shooting = shooting.filter(s => s.life > 0);
+    for (const s of shooting) {
+      const g = ctx.createLinearGradient(s.x, s.y, s.x - s.vx * 18, s.y - s.vy * 18);
+      g.addColorStop(0, `rgba(255,240,200,${s.life})`);
+      g.addColorStop(1, 'rgba(255,240,200,0)');
+      ctx.strokeStyle = g; ctx.lineWidth = 1.6 * dpr;
+      ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x - s.vx * 18, s.y - s.vy * 18); ctx.stroke();
+      s.x += s.vx; s.y += s.vy; s.life -= .015;
+    }
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  resize();
+  frame();
+})();
+
+</script>
+  <script>
+/* Таролог — логика интерфейса и анимаций */
+(function () {
+  'use strict';
+  const { DECK, art, reading } = window.Taro;
+  const { SPREADS } = reading;
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const state = {
+    spread: SPREADS[1], // Прошлое · Настоящее · Будущее
+    run: 0,
+    current: null
+  };
+
+  const BY_ID = Object.fromEntries(DECK.map(c => [c.id, c]));
+
+  /* ---------------- Тосты ---------------- */
+  let toastT;
+  function toast(msg) {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastT);
+    toastT = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  /* ---------------- Экраны ---------------- */
+  function show(id) {
+    $$('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+    scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  $('#home').addEventListener('click', () => { state.run++; stopSpeak(); window.Taro.skyBoost = 0; show('screenAsk'); });
+
+  /* ---------------- Карты ---------------- */
+  function cardEl(card, reversed, flipped) {
+    const el = document.createElement('div');
+    el.className = 'card' + (flipped ? ' flipped' : '');
+    el.innerHTML = `<div class="card-inner"><div class="face back">${art.back()}</div>${card ? `<div class="face front ${reversed ? 'rev' : ''}">${art.front(card)}</div>` : ''}</div>`;
+    return el;
+  }
+
+  function burst(x, y, n = 22, spread = 90) {
+    if (reduceMotion) return;
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement('div');
+      s.className = 'spark';
+      const size = 3 + Math.random() * 5;
+      s.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px;` + (Math.random() < .3 ? 'background:#c9b8ff;box-shadow:0 0 10px #8b6cff' : '');
+      document.body.appendChild(s);
+      const a = Math.random() * Math.PI * 2, d = spread * (.4 + Math.random());
+      s.animate([
+        { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+        { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d}px)) scale(0)`, opacity: 0 }
+      ], { duration: 700 + Math.random() * 700, easing: 'cubic-bezier(.1,.8,.3,1)' }).onfinish = () => s.remove();
+    }
+  }
+  function centerOf(el) { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
+
+  /* ---------------- Раскладка стола ---------------- */
+  function layoutSpread(spread, compact) {
+    const box = $('#spread');
+    const W = Math.min(box.parentElement.clientWidth, 1000);
+    const k = 0.2;
+    const maxCw = spread.cols === 1 ? 180 : 150;
+    const labelH = 30;
+    let cw = Math.min(maxCw, W / (spread.cols + (spread.cols - 1) * k));
+    // во время выбора стол и веер должны помещаться на экране
+    const fanH = compact ? fanGeometry().zoneH + 20 : 0;
+    const availH = innerHeight - 150 - fanH;
+    cw = Math.min(cw, (availH - spread.rows * labelH) / (spread.rows * 1.7 + (spread.rows - 1) * .14));
+    cw = Math.max(cw, compact ? 56 : 80);
+    const gap = cw * k, gapY = cw * .14;
+    const totalW = spread.cols * cw + (spread.cols - 1) * gap;
+    const offX = (W - totalW) / 2;
+    box.style.setProperty('--cw', cw + 'px');
+    box.style.width = W + 'px';
+    box.style.height = (spread.rows * (cw * 1.7 + labelH) + (spread.rows - 1) * gapY) + 'px';
+    $$('#spread .slot').forEach((slot, i) => {
+      const p = spread.pos[i];
+      slot.style.left = (offX + p.x * (cw + gap)) + 'px';
+      slot.style.top = (p.y * (cw * 1.7 + labelH + gapY)) + 'px';
+    });
+    return cw;
+  }
+
+  function buildSlots(spread, compact) {
+    state.tableSpread = spread;
+    $('#spread').innerHTML = spread.pos.map((p, i) => `<div class="slot" data-i="${i}">
+      <div class="slot-frame">${i + 1}</div><div class="slot-label">${p.n}</div></div>`).join('');
+    state.compact = !!compact;
+    layoutSpread(spread, compact);
+  }
+
+  /* ---------------- Веер ---------------- */
+  // в веере вся колода — 78 карт, как на настоящем столе
+  function fanGeometry() {
+    const W = $('#deckZone').parentElement.clientWidth;
+    const angle = W < 500 ? 96 : 80;
+    const om = 5; // радиус дуги в высотах карты
+    const halfA = angle / 2 * Math.PI / 180;
+    const widthK = 2 * om * 1.7 * Math.sin(halfA) + 1;
+    const fcw = Math.max(28, Math.min(64, (W - 8) / widthK, innerHeight / 16));
+    const drop = om * 1.7 * (1 - Math.cos(halfA));
+    return { fcw, count: DECK.length, angle, om, zoneH: fcw * (1.7 + .5 + drop + .3) };
+  }
+
+  async function shuffleAndFan(token, deckOrder) {
+    const zone = $('#deckZone');
+    const { fcw, count, angle, om, zoneH } = fanGeometry();
+    zone.className = 'deck-zone';
+    zone.style.setProperty('--fcw', fcw + 'px');
+    zone.style.setProperty('--om', (om * 100) + '%');
+    zone.style.height = zoneH + 'px';
+    zone.innerHTML = '';
+    const cards = [];
+    for (let i = 0; i < count; i++) {
+      const c = document.createElement('div');
+      c.className = 'fan-card';
+      c.dataset.k = i;
+      c.innerHTML = `<div class="face back">${art.back()}</div>`;
+      c.style.zIndex = i;
+      zone.appendChild(c);
+      cards.push(c);
+    }
+    // появление колоды
+    cards.forEach((c, i) => c.animate([
+      { transform: 'translateY(-160px) rotate(-20deg) scale(.6)', opacity: 0 },
+      { transform: 'translateY(0) rotate(0) scale(1)', opacity: 1 }
+    ], { duration: 700, delay: i * 6, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
+    await wait(700 + count * 6);
+    if (token !== state.run) return null;
+
+    // тасование: три «рифла» и снятие
+    window.Taro.skyBoost = 1;
+    const rounds = reduceMotion ? 0 : 3;
+    for (let r = 0; r < rounds; r++) {
+      const anims = cards.map((c, i) => {
+        const dir = i % 2 ? 1 : -1;
+        const dx = dir * fcw * (.75 + Math.random() * .25);
+        return c.animate([
+          { transform: 'translate(0,0) rotate(0)' },
+          { transform: `translate(${dx}px, ${-6 - Math.random() * 10}px) rotate(${dir * (8 + Math.random() * 8)}deg)`, offset: .45 },
+          { transform: `translate(${dx * .2}px, -2px) rotate(${dir * 2}deg)`, offset: .8 },
+          { transform: 'translate(0,0) rotate(0)' }
+        ], { duration: 640, delay: i * 3, easing: 'ease-in-out' });
+      });
+      setTimeout(() => cards.forEach(c => { c.style.zIndex = Math.floor(Math.random() * count); }), 330);
+      await Promise.all(anims.map(a => a.finished.catch(() => { })));
+      if (token !== state.run) return null;
+    }
+    window.Taro.skyBoost = 0;
+    if (token !== state.run) return null;
+
+    // снятие колоды — делает сам спрашивающий, как в живом гадании
+    setStatus('Сними колоду — нажми на неё');
+    zone.classList.add('cutting');
+    await new Promise(resolve => zone.addEventListener('click', resolve, { once: true }));
+    zone.classList.remove('cutting');
+    if (token !== state.run) return null;
+    const cutAt = 15 + Math.floor(reading.secureRandom() * (count - 30));
+    const order = deckOrder.slice(cutAt).concat(deckOrder.slice(0, cutAt));
+    setStatus('Колода снята');
+    if (!reduceMotion) {
+      const top = cards.slice(cutAt);
+      await Promise.all(top.map(c => c.animate([
+        { transform: 'translate(0,0)' }, { transform: `translate(0, ${-fcw * 1.3}px) rotate(4deg)`, offset: .4 },
+        { transform: `translate(${fcw * 1.2}px, ${-fcw * .4}px) rotate(10deg)`, offset: .7 }, { transform: 'translate(0,0)' }
+      ], { duration: 900, easing: 'ease-in-out' }).finished.catch(() => { })));
+    }
+    if (token !== state.run) return null;
+
+    // раскрываем веер
+    cards.forEach((c, i) => {
+      c.style.zIndex = i;
+      c.style.transitionDelay = (i * 8) + 'ms';
+      c.style.setProperty('--rot', (-angle / 2 + angle * i / (count - 1)) + 'deg');
+    });
+    await wait(700 + count * 8);
+    cards.forEach(c => { c.style.transitionDelay = '0ms'; });
+    return cards.map((el, i) => ({ el, card: order[i] }));
+  }
+
+  function flyToSlot(fanEl, slot, cardData, reversed) {
+    return new Promise(resolve => {
+      const fr = fanEl.getBoundingClientRect();
+      const sr = slot.querySelector('.slot-frame').getBoundingClientRect();
+      const fcw = parseFloat(getComputedStyle($('#deckZone')).getPropertyValue('--fcw'));
+      const w = fcw, h = fcw * 1.7;
+      const rot = parseFloat(fanEl.style.getPropertyValue('--rot')) || 0;
+      const sx = fr.left + fr.width / 2 - w / 2, sy = fr.top + fr.height / 2 - h / 2;
+      const tx = sr.left + sr.width / 2 - w / 2, ty = sr.top + sr.height / 2 - h / 2;
+      const scale = sr.width / w;
+      const fly = document.createElement('div');
+      fly.className = 'flyer';
+      fly.style.cssText = `left:0;top:0;width:${w}px;height:${h}px;`;
+      fly.innerHTML = `<div class="face back">${art.back()}</div>`;
+      document.body.appendChild(fly);
+      fanEl.classList.add('taken');
+      const midX = (sx + tx) / 2 + (Math.random() - .5) * 80, midY = Math.min(sy, ty) - 60;
+      fly.animate([
+        { transform: `translate(${sx}px, ${sy}px) rotate(${rot}deg) scale(1)` },
+        { transform: `translate(${midX}px, ${midY}px) rotate(${rot / 2 + 8}deg) scale(${(1 + scale) / 2 * 1.12})`, offset: .55 },
+        { transform: `translate(${tx}px, ${ty}px) rotate(0deg) scale(${scale})` }
+      ], { duration: reduceMotion ? 10 : 820, easing: 'cubic-bezier(.45,.05,.25,1)', fill: 'forwards' }).onfinish = () => {
+        const el = cardEl(cardData, reversed, false);
+        slot.appendChild(el);
+        slot.querySelector('.slot-frame').style.visibility = 'hidden';
+        fly.remove();
+        const [cx, cy] = centerOf(el);
+        burst(cx, cy, 12, 60);
+        el.animate([{ transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 300, easing: 'ease-out' });
+        resolve(el);
+      };
+    });
+  }
+
+  /* ---------------- Ход ритуала ---------------- */
+  function setStatus(html) {
+    const s = $('#status');
+    s.style.opacity = 0;
+    setTimeout(() => { s.innerHTML = html; s.style.opacity = 1; }, 200);
+  }
+
+  async function startReading() {
+    const silent = true; // вопрос задаётся мысленно или вслух
+    const question = '';
+    stopSpeak();
+    const token = ++state.run;
+    const spread = state.spread;
+    const pickSelf = true;
+    const allowRev = true;
+    const order = reading.shuffled();
+
+    show('screenTable');
+    $('#qEcho').textContent = '✦ Держи вопрос в мыслях ✦';
+    $('#reading').innerHTML = '';
+    buildSlots(spread, true);
+    setStatus(silent ? 'Держите вопрос в мыслях — тасую колоду<span class="dots"></span>' : 'Тасую колоду<span class="dots"></span>');
+
+    await wait(400);
+    const fan = await shuffleAndFan(token, order);
+    if (!fan || token !== state.run) return;
+
+    const draws = [];
+    const zone = $('#deckZone');
+    const slots = $$('#spread .slot');
+    const markNext = () => slots.forEach((s, i) => s.classList.toggle('next', i === draws.length));
+    markNext();
+
+    const takeCard = async (item) => {
+      const posIndex = draws.length;
+      const reversed = allowRev && reading.secureRandom() < 0.5;
+      const d = { card: item.card, reversed, posIndex };
+      draws.push(d);
+      markNext();
+      d.el = await flyToSlot(item.el, slots[posIndex], item.card, reversed);
+    };
+
+    const need = spread.pos.length;
+    if (pickSelf) {
+      setStatus(`Выберите ${need === 1 ? 'одну карту' : need + ' ' + (need < 5 ? 'карты' : 'карт')} — доверьтесь руке`);
+      zone.classList.add('picking');
+      await new Promise(resolve => {
+        const flights = [];
+        const onPick = e => {
+          const el = e.target.closest('.fan-card');
+          if (!el || el.classList.contains('taken') || draws.length >= need || token !== state.run) return;
+          const item = fan.find(f => f.el === el);
+          flights.push(takeCard(item));
+          if (draws.length < need) setStatus(`Осталось выбрать: ${need - draws.length}`);
+          else {
+            zone.classList.remove('picking');
+            zone.removeEventListener('click', onPick);
+            Promise.all(flights).then(resolve);
+          }
+        };
+        zone.addEventListener('click', onPick);
+      });
+    } else {
+      setStatus('Колода сама выбирает карты<span class="dots"></span>');
+      const avail = fan.slice();
+      for (let i = 0; i < need; i++) {
+        const k = Math.floor(reading.secureRandom() * avail.length);
+        const item = avail.splice(k, 1)[0];
+        item.el.classList.add('hover');
+        await wait(450);
+        if (token !== state.run) return;
+        item.el.classList.remove('hover');
+        await takeCard(item);
+      }
+    }
+    if (token !== state.run) return;
+    slots.forEach(s => s.classList.remove('next'));
+
+    // убрать веер
+    fan.forEach((f, i) => {
+      if (!f.el.classList.contains('taken')) {
+        f.el.animate([{ opacity: 1 }, { transform: `translateY(${60 + Math.random() * 40}px) rotate(${(Math.random() - .5) * 30}deg)`, opacity: 0 }],
+          { duration: 600, delay: i * 15, fill: 'forwards', easing: 'ease-in' });
+      }
+    });
+    await wait(700);
+    zone.classList.add('gone');
+    zone.style.height = '';
+    state.compact = false;
+    scrollTo({ top: 0, behavior: 'smooth' });
+    layoutSpread(spread, false); // карты плавно увеличиваются
+    await wait(750);
+    if (token !== state.run) return;
+
+    // переворот
+    for (const d of draws) {
+      setStatus(`Открываю: ${spread.pos[d.posIndex].n.toLowerCase()}`);
+      await wait(reduceMotion ? 50 : 520);
+      if (token !== state.run) return;
+      d.el.classList.add('flipped');
+      await wait(reduceMotion ? 50 : 480);
+      d.el.classList.add('glow');
+      const [cx, cy] = centerOf(d.el);
+      burst(cx, cy, 26, 110);
+      d.el.addEventListener('click', () => openModal(d, spread));
+    }
+    if (token !== state.run) return;
+    setStatus('Карты открыты. Читаю расклад…');
+    await wait(600);
+
+    const result = buildResult(draws, spread, question, silent);
+    state.current = result;
+    saveHistory(result);
+    await renderReading(result, token, true);
+    setStatus('');
+  }
+  $('#go').addEventListener('click', startReading);
+
+  function buildResult(draws, spread, question, silent) {
+    const theme = reading.detectTheme(question);
+    const items = draws.map(d => ({ id: d.card.id, reversed: d.reversed, posIndex: d.posIndex, ...reading.cardText(d, spread, theme) }));
+    const sum = reading.summarize(draws, spread, question, silent);
+    return { date: Date.now(), question, silent, spreadId: spread.id, items, summary: sum };
+  }
+
+  /* ---------------- Толкование ---------------- */
+  async function typeInto(el, text, token) {
+    if (reduceMotion) { el.textContent = text; return; }
+    el.classList.add('typing');
+    for (let i = 0; i <= text.length; i += 3) {
+      if (token !== state.run) return;
+      if (state.skipTyping) { el.textContent = text; break; }
+      el.textContent = text.slice(0, i);
+      await wait(14);
+    }
+    el.textContent = text;
+    el.classList.remove('typing');
+  }
+
+  async function renderReading(res, token, animate) {
+    const spread = SPREADS.find(s => s.id === res.spreadId);
+    const box = $('#reading');
+    box.innerHTML = '';
+    state.skipTyping = !animate;
+    res.items.forEach((it, i) => {
+      const card = BY_ID[it.id];
+      const pos = spread.pos[it.posIndex];
+      const div = document.createElement('article');
+      div.className = 'r-item';
+      div.style.animationDelay = (animate ? i * 180 : 0) + 'ms';
+      div.innerHTML = `<div class="r-thumb ${it.reversed ? 'rev' : ''}">${art.front(card)}</div>
+        <div><div class="r-pos">${i + 1}. ${pos.n} · ${pos.d}</div>
+        <div class="r-name">${card.name}${it.reversed ? '<em>перевёрнута</em>' : ''}</div>
+        <div class="chips">${card.keywords.split(',').map(k => `<span>${k.trim()}</span>`).join('')}</div>
+        <p class="r-text">${it.base}</p>${it.extra ? `<p class="r-extra">${it.extra}</p>` : ''}</div>`;
+      div.addEventListener('click', () => openModal({ card, reversed: it.reversed, posIndex: it.posIndex }, spread));
+      box.appendChild(div);
+    });
+    if (animate) {
+      await wait(150);
+      box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      await wait(res.items.length * 180 + 600);
+    }
+    if (token !== state.run) return;
+
+    const s = res.summary;
+    const sum = document.createElement('section');
+    sum.className = 'summary';
+    const vClass = !s.verdict ? '' : /нет/i.test(s.verdict) ? 'neg' : /неясно/i.test(s.verdict) ? 'mid' : '';
+    sum.innerHTML = `<h2>Разбор расклада</h2>
+      ${s.verdict ? `<div class="verdict ${vClass}">✦ ${s.verdict}</div>` : ''}
+      <div class="sum-text">${s.paragraphs.map(() => '<p></p>').join('')}</div>
+      <div class="advice" style="opacity:0"><small>Совет карт</small>${s.advice}</div>`;
+    box.appendChild(sum);
+    sum.addEventListener('click', () => { state.skipTyping = true; });
+    const ps = sum.querySelectorAll('.sum-text p');
+    for (let i = 0; i < s.paragraphs.length; i++) {
+      await typeInto(ps[i], s.paragraphs[i], token);
+      if (token !== state.run) return;
+    }
+    const adv = sum.querySelector('.advice');
+    adv.style.opacity = 1;
+    if (animate) {
+      adv.animate([{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 700, easing: 'ease-out' });
+      const [cx, cy] = centerOf(adv);
+      burst(cx, cy, 30, 140);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+    actions.innerHTML = `
+      <button class="btn-ghost" id="aSpeak"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Озвучить</span></button>
+      <button class="btn-ghost" id="aCopy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Поделиться</button>
+      <button class="btn-ghost" id="aNew"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Новый вопрос</button>`;
+    box.appendChild(actions);
+    const disc = document.createElement('p');
+    disc.className = 'disclaimer';
+    disc.textContent = 'Расклад — повод для размышления, а не руководство к действию. Важные решения принимайте сами.';
+    box.appendChild(disc);
+    $('#aSpeak').addEventListener('click', () => speak(res));
+    $('#aCopy').addEventListener('click', () => share(res));
+    $('#aNew').addEventListener('click', () => { state.run++; stopSpeak(); show('screenAsk'); });
+  }
+
+  function plainText(res) {
+    const spread = SPREADS.find(s => s.id === res.spreadId);
+    const lines = [`🔮 Таролог · ${spread.name}`, res.silent ? 'Вопрос загадан про себя' : `Вопрос: ${res.question}`, ''];
+    res.items.forEach((it, i) => {
+      const c = BY_ID[it.id];
+      lines.push(`${i + 1}. ${spread.pos[it.posIndex].n}: ${c.name}${it.reversed ? ' (перевёрнута)' : ''}`);
+      lines.push(it.base);
+    });
+    lines.push('', 'Разбор:');
+    if (res.summary.verdict) lines.push('Ответ: ' + res.summary.verdict);
+    lines.push(...res.summary.paragraphs, '', 'Совет: ' + res.summary.advice);
+    return lines.join('\n');
+  }
+  async function share(res) {
+    const text = plainText(res);
+    if (navigator.share) { try { await navigator.share({ title: 'Мой расклад Таро', text }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+    try { await navigator.clipboard.writeText(text); toast('Расклад скопирован'); } catch (e) { toast('Не удалось скопировать'); }
+  }
+
+  /* ---------------- Озвучка ---------------- */
+  function stopSpeak() {
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    const b = $('#aSpeak span'); if (b) b.textContent = 'Озвучить';
+  }
+  function speak(res) {
+    if (!('speechSynthesis' in window)) return toast('Озвучка недоступна в этом браузере');
+    if (speechSynthesis.speaking) return stopSpeak();
+    const spread = SPREADS.find(s => s.id === res.spreadId);
+    const parts = res.items.map(it => `${spread.pos[it.posIndex].n}. ${BY_ID[it.id].name}${it.reversed ? ', в перевёрнутом положении' : ''}. ${it.base}`);
+    if (res.summary.verdict) parts.push('Ответ карт: ' + res.summary.verdict + '.');
+    parts.push(...res.summary.paragraphs, 'Совет карт: ' + res.summary.advice);
+    const voices = speechSynthesis.getVoices().filter(v => /^ru/i.test(v.lang));
+    const voice = voices.find(v => /female|milena|алёна|алена|irina|google/i.test(v.name)) || voices[0];
+    parts.forEach((p, i) => {
+      const u = new SpeechSynthesisUtterance(p);
+      u.lang = 'ru-RU'; u.rate = .95; u.pitch = 1;
+      if (voice) u.voice = voice;
+      if (i === parts.length - 1) u.onend = stopSpeak;
+      speechSynthesis.speak(u);
+    });
+    $('#aSpeak span').textContent = 'Остановить';
+  }
+
+  /* ---------------- Модалка карты ---------------- */
+  function openModal(d, spread) {
+    const { card, reversed } = d;
+    const pos = spread.pos[d.posIndex];
+    $('#modalCard').className = 'modal-card' + (reversed ? ' rev' : '');
+    $('#modalCard').innerHTML = art.front(card);
+    const arcana = card.arcana === 'major' ? `Старший Аркан ${card.numeral}` : `Младший Аркан · ${reading.SUITS[card.suit].name} · ${reading.SUITS[card.suit].element}`;
+    $('#modalText').innerHTML = `<div class="r-pos">${pos ? pos.n + ' · ' : ''}${arcana}</div>
+      <h3>${card.name}</h3>
+      <div class="chips">${card.keywords.split(',').map(k => `<span>${k.trim()}</span>`).join('')}</div>
+      <h4>${reversed ? 'Перевёрнутое положение — ваша карта' : 'Прямое положение — ваша карта'}</h4>
+      <p>${reversed ? card.rev : card.up}</p>
+      <h4>${reversed ? 'В прямом положении' : 'В перевёрнутом положении'}</h4>
+      <p class="muted">${reversed ? card.up : card.rev}</p>
+      <h4>Совет</h4><p><i>${card.advice}</i></p>`;
+    $('#modal').classList.add('open');
+    $('#modal').setAttribute('aria-hidden', 'false');
+  }
+  function closeOverlays() {
+    $$('.modal, .drawer').forEach(m => { m.classList.remove('open'); m.setAttribute('aria-hidden', 'true'); });
+  }
+  document.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeOverlays(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOverlays(); });
+
+  /* ---------------- История ---------------- */
+  const HKEY = 'taro.history.v1';
+  function loadHistory() { try { return JSON.parse(localStorage.getItem(HKEY)) || []; } catch (e) { return []; } }
+  function saveHistory(res) {
+    try { const h = loadHistory(); h.unshift(res); localStorage.setItem(HKEY, JSON.stringify(h.slice(0, 30))); } catch (e) { /* ignore */ }
+  }
+  function renderHistory() {
+    const h = loadHistory();
+    const list = $('#historyList');
+    if (!h.length) { list.innerHTML = '<p class="muted">Здесь будут ваши расклады.</p>'; return; }
+    list.innerHTML = h.map((r, i) => {
+      const sp = SPREADS.find(s => s.id === r.spreadId);
+      const date = new Date(r.date).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+      return `<button class="h-item" data-i="${i}"><b>${r.silent ? '✦ Загадано про себя' : r.question}</b>
+        <small>${sp ? sp.name : ''} · ${date}${r.summary.verdict ? ' · ' + r.summary.verdict : ''}</small>
+        <div class="h-cards">${r.items.map(it => `<div class="${it.reversed ? 'r-thumb rev' : ''}" style="width:26px;height:44px">${art.front(BY_ID[it.id])}</div>`).join('')}</div></button>`;
+    }).join('');
+  }
+  $('#openHistory').addEventListener('click', () => { renderHistory(); $('#drawer').classList.add('open'); $('#drawer').setAttribute('aria-hidden', 'false'); });
+  $('#historyList').addEventListener('click', e => {
+    const b = e.target.closest('.h-item');
+    if (!b) return;
+    const res = loadHistory()[+b.dataset.i];
+    closeOverlays();
+    reopen(res);
+  });
+  $('#clearHistory').addEventListener('click', () => { try { localStorage.removeItem(HKEY); } catch (e) { /* ignore */ } renderHistory(); toast('История очищена'); });
+
+  function reopen(res) {
+    const token = ++state.run;
+    stopSpeak();
+    const spread = SPREADS.find(s => s.id === res.spreadId);
+    show('screenTable');
+    $('#qEcho').textContent = res.silent ? '✦ Вопрос загадан про себя ✦' : '«' + res.question + '»';
+    $('#status').textContent = new Date(res.date).toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    $('#deckZone').className = 'deck-zone gone';
+    $('#deckZone').innerHTML = '';
+    buildSlots(spread);
+    const slots = $$('#spread .slot');
+    res.items.forEach((it, i) => {
+      const card = BY_ID[it.id];
+      const el = cardEl(card, it.reversed, false);
+      slots[it.posIndex].appendChild(el);
+      slots[it.posIndex].querySelector('.slot-frame').style.visibility = 'hidden';
+      setTimeout(() => el.classList.add('flipped'), 300 + i * 200);
+      el.addEventListener('click', () => openModal({ card, reversed: it.reversed, posIndex: it.posIndex }, spread));
+    });
+    state.current = res;
+    renderReading(res, token, false);
+  }
+
+  addEventListener('resize', () => {
+    if ($('#screenTable').classList.contains('active')) {
+      if (state.tableSpread) layoutSpread(state.tableSpread, state.compact);
+    }
+  });
+
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
+  }
+})();
+
+</script>
+</body>
+</html>
