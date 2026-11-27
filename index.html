@@ -37,58 +37,15 @@
   <main class="app">
     <!-- ЭКРАН ВОПРОСА -->
     <section id="screenAsk" class="screen active">
-      <div class="hero">
+      <div class="hero hero-simple">
         <div class="orb" aria-hidden="true">
           <div class="orb-ring r1"></div><div class="orb-ring r2"></div><div class="orb-ring r3"></div>
           <div class="orb-core"></div>
           <div class="orb-cards"><span></span><span></span><span></span></div>
         </div>
-        <h1 class="title">Спросите у карт</h1>
-        <p class="lead">Напишите вопрос, продиктуйте его или просто загадайте про себя</p>
-      </div>
-
-      <div class="panel">
-        <div class="tabs" role="tablist">
-          <button class="tab active" data-mode="write" role="tab">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Написать</button>
-          <button class="tab" data-mode="voice" role="tab">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Голосом</button>
-          <button class="tab" data-mode="silent" role="tab">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="19" cy="19" r="1.4" fill="currentColor"/></svg>Про себя</button>
-          <span class="tab-glider"></span>
-        </div>
-
-        <div class="mode mode-write mode-voice active" id="askBox">
-          <div class="voice-stage" id="voiceStage">
-            <button class="mic-big" id="micBig" aria-label="Начать диктовку">
-              <span class="wave w1"></span><span class="wave w2"></span><span class="wave w3"></span>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </button>
-            <div class="voice-hint" id="voiceHint">Нажмите и говорите</div>
-          </div>
-          <div class="field">
-            <textarea id="question" rows="3" maxlength="300" placeholder="Например: что меня ждёт в работе в ближайший месяц?"></textarea>
-            <button class="mic-small" id="micSmall" aria-label="Продиктовать" title="Продиктовать">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-            </button>
-          </div>
-          <div class="suggest" id="suggest"></div>
-        </div>
-
-        <div class="mode mode-silent" id="silentBox">
-          <div class="breath"><div class="breath-circle"></div><div class="breath-text" id="breathText">Вдох…</div></div>
-          <p class="muted center">Закройте глаза и мысленно сформулируйте вопрос. Держите его в голове, пока колода тасуется.</p>
-        </div>
-
-        <div class="section-label">Расклад</div>
-        <div class="spreads" id="spreads"></div>
-
-        <div class="opts">
-          <label class="switch"><input type="checkbox" id="optPick" checked><span class="slider"></span>Выбрать карты самому</label>
-          <label class="switch"><input type="checkbox" id="optRev" checked><span class="slider"></span>Перевёрнутые карты</label>
-        </div>
-
-        <button class="btn-primary" id="go"><span>Сделать расклад</span><i class="shine"></i></button>
+        <h1 class="title">Задай свой вопрос</h1>
+        <p class="lead">Мысленно или вслух — и нажми «Расклад»</p>
+        <button class="btn-primary btn-go" id="go"><span>Расклад</span><i class="shine"></i></button>
       </div>
     </section>
 

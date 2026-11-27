@@ -9,8 +9,7 @@
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const state = {
-    mode: 'write',
-    spread: SPREADS[1],
+    spread: SPREADS[1], // Прошлое · Настоящее · Будущее
     run: 0,
     current: null
   };
@@ -26,98 +25,6 @@
     clearTimeout(toastT);
     toastT = setTimeout(() => t.classList.remove('show'), 2800);
   }
-
-  /* ---------------- Вкладки ---------------- */
-  const TAB_ORDER = ['write', 'voice', 'silent'];
-  function setMode(mode) {
-    state.mode = mode;
-    $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
-    $('.tab-glider').style.transform = `translateX(${TAB_ORDER.indexOf(mode) * 100}%)`;
-    const ask = $('#askBox');
-    ask.classList.toggle('active', mode !== 'silent');
-    ask.classList.toggle('voice', mode === 'voice');
-    $('#silentBox').classList.toggle('active', mode === 'silent');
-    if (mode !== 'voice') stopRec();
-    if (mode === 'write') setTimeout(() => $('#question').focus({ preventScroll: true }), 50);
-  }
-  $$('.tab').forEach(t => t.addEventListener('click', () => setMode(t.dataset.mode)));
-
-  // дыхание
-  let breathIn = true;
-  setInterval(() => { breathIn = !breathIn; $('#breathText').textContent = breathIn ? 'Вдох…' : 'Выдох…'; }, 4000);
-
-  // подсказки
-  const SUGGEST = ['Что меня ждёт в ближайший месяц?', 'Стоит ли менять работу?', 'Что он(а) чувствует ко мне?', 'Как улучшить финансы?', 'На что обратить внимание сегодня?'];
-  $('#suggest').innerHTML = SUGGEST.map(s => `<button type="button">${s}</button>`).join('');
-  $('#suggest').addEventListener('click', e => {
-    if (e.target.tagName !== 'BUTTON') return;
-    const q = $('#question');
-    q.value = e.target.textContent;
-    q.animate([{ boxShadow: '0 0 0 0 rgba(233,201,122,.6)' }, { boxShadow: '0 0 0 12px rgba(233,201,122,0)' }], 700);
-  });
-
-  /* ---------------- Голосовой ввод ---------------- */
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null;
-  function setRecUI(on) {
-    $('#micBig').classList.toggle('rec', on);
-    $('#micSmall').classList.toggle('rec', on);
-    $('#voiceHint').textContent = on ? 'Слушаю… говорите' : 'Нажмите и говорите';
-  }
-  function stopRec() { if (rec) { try { rec.stop(); } catch (e) { /* ignore */ } } }
-  function toggleRec() {
-    if (rec) return stopRec();
-    if (!SR) {
-      toast('Голосовой ввод не поддерживается этим браузером. Попробуйте Chrome, Edge или Safari.');
-      return;
-    }
-    const ta = $('#question');
-    const base = ta.value.trim() ? ta.value.trim() + ' ' : '';
-    rec = new SR();
-    rec.lang = 'ru-RU';
-    rec.interimResults = true;
-    rec.continuous = false;
-    rec.onresult = e => {
-      let fin = '', interim = '';
-      for (let i = 0; i < e.results.length; i++) {
-        const r = e.results[i];
-        if (r.isFinal) fin += r[0].transcript; else interim += r[0].transcript;
-      }
-      let text = base + fin + interim;
-      if (text) text = text.charAt(0).toUpperCase() + text.slice(1);
-      ta.value = text;
-    };
-    rec.onerror = e => {
-      toast(e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'Нет доступа к микрофону — разрешите его в настройках браузера.' :
-        e.error === 'no-speech' ? 'Не расслышал. Попробуйте ещё раз.' : 'Не удалось распознать речь.');
-    };
-    rec.onend = () => {
-      rec = null; setRecUI(false);
-      const v = ta.value.trim();
-      if (v && !/[?.!]$/.test(v)) ta.value = v + '?';
-    };
-    try { rec.start(); setRecUI(true); } catch (e) { rec = null; toast('Не удалось включить микрофон.'); }
-  }
-  $('#micBig').addEventListener('click', toggleRec);
-  $('#micSmall').addEventListener('click', () => { setMode('voice'); toggleRec(); });
-
-  /* ---------------- Выбор расклада ---------------- */
-  function renderSpreadOptions() {
-    $('#spreads').innerHTML = SPREADS.map(sp => {
-      const w = (sp.cols - 1) * 18 + 14;
-      const uy = sp.rows > 1 ? 22 / (sp.rows - 1) : 0;
-      const minis = sp.pos.map((p, i) => `<i style="left:calc(50% - ${w / 2}px + ${p.x * 18}px);top:${p.y * uy}px;transition-delay:${i * 60}ms"></i>`).join('');
-      return `<button type="button" class="spread-opt ${sp === state.spread ? 'active' : ''}" data-id="${sp.id}">
-        <div class="mini">${minis}</div><b>${sp.name}</b><small>${sp.hint}</small></button>`;
-    }).join('');
-  }
-  $('#spreads').addEventListener('click', e => {
-    const b = e.target.closest('.spread-opt');
-    if (!b) return;
-    state.spread = SPREADS.find(s => s.id === b.dataset.id);
-    $$('.spread-opt').forEach(x => x.classList.toggle('active', x === b));
-  });
-  renderSpreadOptions();
 
   /* ---------------- Экраны ---------------- */
   function show(id) {
@@ -301,23 +208,17 @@
   }
 
   async function startReading() {
-    const silent = state.mode === 'silent';
-    const question = silent ? '' : $('#question').value.trim();
-    if (!silent && question.length < 3) {
-      toast(state.mode === 'voice' ? 'Продиктуйте вопрос или переключитесь на «Про себя».' : 'Напишите вопрос или выберите «Про себя».');
-      $('#question').focus();
-      return;
-    }
-    stopRec();
+    const silent = true; // вопрос задаётся мысленно или вслух
+    const question = '';
     stopSpeak();
     const token = ++state.run;
     const spread = state.spread;
-    const pickSelf = $('#optPick').checked;
-    const allowRev = $('#optRev').checked;
+    const pickSelf = true;
+    const allowRev = true;
     const order = reading.shuffled();
 
     show('screenTable');
-    $('#qEcho').textContent = silent ? '✦ Вопрос загадан про себя ✦' : '«' + question + '»';
+    $('#qEcho').textContent = '✦ Держи вопрос в мыслях ✦';
     $('#reading').innerHTML = '';
     buildSlots(spread, true);
     setStatus(silent ? 'Держите вопрос в мыслях — тасую колоду<span class="dots"></span>' : 'Тасую колоду<span class="dots"></span>');
@@ -416,7 +317,6 @@
     setStatus('');
   }
   $('#go').addEventListener('click', startReading);
-  $('#question').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); startReading(); } });
 
   function buildResult(draws, spread, question, silent) {
     const theme = reading.detectTheme(question);
@@ -501,7 +401,7 @@
     box.appendChild(disc);
     $('#aSpeak').addEventListener('click', () => speak(res));
     $('#aCopy').addEventListener('click', () => share(res));
-    $('#aNew').addEventListener('click', () => { state.run++; stopSpeak(); $('#question').value = ''; show('screenAsk'); });
+    $('#aNew').addEventListener('click', () => { state.run++; stopSpeak(); show('screenAsk'); });
   }
 
   function plainText(res) {
