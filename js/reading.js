@@ -107,6 +107,27 @@
     else if (theme !== 'general') out.push(`Вопрос касается темы «${THEMES[theme].label}». Вот что показывает расклад.`);
     else out.push(pick(['Колода дала ясный ответ. Вот общая картина.', 'Карты сложились в цельную историю.']));
 
+    // сюжет: карты читаются вместе, по порядку позиций
+    const kw = d => {
+      if (d.reversed) {
+        const r = d.card.rev.split(/[,.:;—]/)[0].trim();
+        return `«${r.charAt(0).toLowerCase() + r.slice(1)}»`;
+      }
+      return `«${d.card.keywords.split(',')[0].trim()}»`;
+    };
+    const byPos = draws.slice().sort((a, b) => a.posIndex - b.posIndex);
+    if (spread.id === 'three') {
+      out.push(`История расклада: в прошлом главной была тема ${kw(byPos[0])} — ${byPos[0].card.name}. ` +
+        `Сейчас на первый план выходит ${kw(byPos[1])} — ${byPos[1].card.name}. ` +
+        `А дальше события движутся к теме ${kw(byPos[2])} — ${byPos[2].card.name}.`);
+      const p0 = score(byPos[0].card, byPos[0].reversed), p2 = score(byPos[2].card, byPos[2].reversed);
+      if (p2 > p0) out.push('Динамика положительная: будущее светлее прошлого, ситуация выправляется.');
+      else if (p2 < p0) out.push('Динамика тревожная: будущая карта тяжелее прошлой — стоит заранее подготовиться и не пускать всё на самотёк.');
+      else out.push('Динамика ровная: ситуация развивается в том же ключе, резких поворотов не видно.');
+    } else if (n > 1) {
+      out.push(byPos.map(d => `${spread.pos[d.posIndex].n} — ${kw(d)}`).join('; ') + '.');
+    }
+
     // арканы
     const majors = draws.filter(d => d.card.arcana === 'major').length;
     if (n > 1) {

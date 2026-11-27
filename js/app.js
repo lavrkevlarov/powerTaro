@@ -67,7 +67,7 @@
     const labelH = 30;
     let cw = Math.min(maxCw, W / (spread.cols + (spread.cols - 1) * k));
     // во время выбора стол и веер должны помещаться на экране
-    const fanH = compact ? fanGeometry().fcw * 3.15 + 20 : 0;
+    const fanH = compact ? fanGeometry().zoneH + 20 : 0;
     const availH = innerHeight - 150 - fanH;
     cw = Math.min(cw, (availH - spread.rows * labelH) / (spread.rows * 1.7 + (spread.rows - 1) * .14));
     cw = Math.max(cw, compact ? 56 : 80);
@@ -94,19 +94,25 @@
   }
 
   /* ---------------- Веер ---------------- */
+  // в веере вся колода — 78 карт, как на настоящем столе
   function fanGeometry() {
     const W = $('#deckZone').parentElement.clientWidth;
-    const fcw = Math.max(42, Math.min(84, W / 7.6, innerHeight / 11));
-    const count = W < 500 ? 19 : 23;
-    return { fcw, count, angle: 64 };
+    const angle = W < 500 ? 96 : 80;
+    const om = 5; // радиус дуги в высотах карты
+    const halfA = angle / 2 * Math.PI / 180;
+    const widthK = 2 * om * 1.7 * Math.sin(halfA) + 1;
+    const fcw = Math.max(28, Math.min(64, (W - 8) / widthK, innerHeight / 16));
+    const drop = om * 1.7 * (1 - Math.cos(halfA));
+    return { fcw, count: DECK.length, angle, om, zoneH: fcw * (1.7 + .5 + drop + .3) };
   }
 
   async function shuffleAndFan(token, deckOrder) {
     const zone = $('#deckZone');
-    const { fcw, count, angle } = fanGeometry();
+    const { fcw, count, angle, om, zoneH } = fanGeometry();
     zone.className = 'deck-zone';
     zone.style.setProperty('--fcw', fcw + 'px');
-    zone.style.height = (fcw * 3.15) + 'px';
+    zone.style.setProperty('--om', (om * 100) + '%');
+    zone.style.height = zoneH + 'px';
     zone.innerHTML = '';
     const cards = [];
     for (let i = 0; i < count; i++) {
@@ -122,8 +128,8 @@
     cards.forEach((c, i) => c.animate([
       { transform: 'translateY(-160px) rotate(-20deg) scale(.6)', opacity: 0 },
       { transform: 'translateY(0) rotate(0) scale(1)', opacity: 1 }
-    ], { duration: 700, delay: i * 18, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
-    await wait(700 + count * 18);
+    ], { duration: 700, delay: i * 6, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
+    await wait(700 + count * 6);
     if (token !== state.run) return null;
 
     // тасование: три «рифла» и снятие
@@ -138,32 +144,42 @@
           { transform: `translate(${dx}px, ${-6 - Math.random() * 10}px) rotate(${dir * (8 + Math.random() * 8)}deg)`, offset: .45 },
           { transform: `translate(${dx * .2}px, -2px) rotate(${dir * 2}deg)`, offset: .8 },
           { transform: 'translate(0,0) rotate(0)' }
-        ], { duration: 640, delay: i * 9, easing: 'ease-in-out' });
+        ], { duration: 640, delay: i * 3, easing: 'ease-in-out' });
       });
       setTimeout(() => cards.forEach(c => { c.style.zIndex = Math.floor(Math.random() * count); }), 330);
       await Promise.all(anims.map(a => a.finished.catch(() => { })));
       if (token !== state.run) return null;
     }
-    if (rounds) {
-      // снятие колоды
-      const half = cards.slice(Math.floor(count / 2));
-      await Promise.all(half.map(c => c.animate([
+    window.Taro.skyBoost = 0;
+    if (token !== state.run) return null;
+
+    // снятие колоды — делает сам спрашивающий, как в живом гадании
+    setStatus('Сними колоду — нажми на неё');
+    zone.classList.add('cutting');
+    await new Promise(resolve => zone.addEventListener('click', resolve, { once: true }));
+    zone.classList.remove('cutting');
+    if (token !== state.run) return null;
+    const cutAt = 15 + Math.floor(reading.secureRandom() * (count - 30));
+    const order = deckOrder.slice(cutAt).concat(deckOrder.slice(0, cutAt));
+    setStatus('Колода снята');
+    if (!reduceMotion) {
+      const top = cards.slice(cutAt);
+      await Promise.all(top.map(c => c.animate([
         { transform: 'translate(0,0)' }, { transform: `translate(0, ${-fcw * 1.3}px) rotate(4deg)`, offset: .4 },
         { transform: `translate(${fcw * 1.2}px, ${-fcw * .4}px) rotate(10deg)`, offset: .7 }, { transform: 'translate(0,0)' }
       ], { duration: 900, easing: 'ease-in-out' }).finished.catch(() => { })));
     }
-    window.Taro.skyBoost = 0;
     if (token !== state.run) return null;
 
     // раскрываем веер
     cards.forEach((c, i) => {
       c.style.zIndex = i;
-      c.style.transitionDelay = (i * 22) + 'ms';
+      c.style.transitionDelay = (i * 8) + 'ms';
       c.style.setProperty('--rot', (-angle / 2 + angle * i / (count - 1)) + 'deg');
     });
-    await wait(700 + count * 22);
+    await wait(700 + count * 8);
     cards.forEach(c => { c.style.transitionDelay = '0ms'; });
-    return cards.map((el, i) => ({ el, card: deckOrder[i] }));
+    return cards.map((el, i) => ({ el, card: order[i] }));
   }
 
   function flyToSlot(fanEl, slot, cardData, reversed) {
@@ -235,7 +251,7 @@
 
     const takeCard = async (item) => {
       const posIndex = draws.length;
-      const reversed = allowRev && reading.secureRandom() < 0.33;
+      const reversed = allowRev && reading.secureRandom() < 0.5;
       const d = { card: item.card, reversed, posIndex };
       draws.push(d);
       markNext();
