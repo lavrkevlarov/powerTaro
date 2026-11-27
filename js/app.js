@@ -183,27 +183,33 @@
   }
 
   function flyToSlot(fanEl, slot, cardData, reversed) {
+    // start: { x, y, rot, s, vx, vy, fly } — центр карты на экране, поворот, масштаб, скорость взмаха
+    const start = fanEl.nodeType ? fanStart(fanEl) : fanEl;
     return new Promise(resolve => {
-      const fr = fanEl.getBoundingClientRect();
       const sr = slot.querySelector('.slot-frame').getBoundingClientRect();
-      const fcw = parseFloat(getComputedStyle($('#deckZone')).getPropertyValue('--fcw'));
-      const w = fcw, h = fcw * 1.7;
-      const rot = parseFloat(fanEl.style.getPropertyValue('--rot')) || 0;
-      const sx = fr.left + fr.width / 2 - w / 2, sy = fr.top + fr.height / 2 - h / 2;
+      const { w, h } = fanCardSize();
+      const sx = start.x - w / 2, sy = start.y - h / 2;
       const tx = sr.left + sr.width / 2 - w / 2, ty = sr.top + sr.height / 2 - h / 2;
       const scale = sr.width / w;
-      const fly = document.createElement('div');
-      fly.className = 'flyer';
-      fly.style.cssText = `left:0;top:0;width:${w}px;height:${h}px;`;
-      fly.innerHTML = `<div class="face back">${art.back()}</div>`;
-      document.body.appendChild(fly);
-      fanEl.classList.add('taken');
-      const midX = (sx + tx) / 2 + (Math.random() - .5) * 80, midY = Math.min(sy, ty) - 60;
+      const fly = start.fly || makeFlyer();
+      fly.getAnimations().forEach(a => a.cancel());
+      fly.style.transition = 'none';
+      let midX, midY, midRot;
+      if (start.vx !== undefined) {
+        // карта летит по инерции взмаха и заворачивает к своему месту
+        midX = sx + Math.max(-260, Math.min(260, start.vx * 160));
+        midY = Math.min(sy + Math.max(-320, Math.min(0, start.vy * 160)), ty + 30);
+        midRot = start.rot + start.vx * 25;
+      } else {
+        midX = (sx + tx) / 2 + (Math.random() - .5) * 80;
+        midY = Math.min(sy, ty) - 60;
+        midRot = start.rot / 2 + 8;
+      }
       fly.animate([
-        { transform: `translate(${sx}px, ${sy}px) rotate(${rot}deg) scale(1)` },
-        { transform: `translate(${midX}px, ${midY}px) rotate(${rot / 2 + 8}deg) scale(${(1 + scale) / 2 * 1.12})`, offset: .55 },
+        { transform: `translate(${sx}px, ${sy}px) rotate(${start.rot}deg) scale(${start.s})` },
+        { transform: `translate(${midX}px, ${midY}px) rotate(${midRot}deg) scale(${(start.s + scale) / 2 * 1.1})`, offset: .5 },
         { transform: `translate(${tx}px, ${ty}px) rotate(0deg) scale(${scale})` }
-      ], { duration: reduceMotion ? 10 : 820, easing: 'cubic-bezier(.45,.05,.25,1)', fill: 'forwards' }).onfinish = () => {
+      ], { duration: reduceMotion ? 10 : (start.vx !== undefined ? 700 : 820), easing: 'cubic-bezier(.3,.1,.25,1)', fill: 'forwards' }).onfinish = () => {
         const el = cardEl(cardData, reversed, false);
         slot.appendChild(el);
         slot.querySelector('.slot-frame').style.visibility = 'hidden';
@@ -213,6 +219,153 @@
         el.animate([{ transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 300, easing: 'ease-out' });
         resolve(el);
       };
+    });
+  }
+
+  function fanCardSize() {
+    const fcw = parseFloat(getComputedStyle($('#deckZone')).getPropertyValue('--fcw'));
+    return { w: fcw, h: fcw * 1.7 };
+  }
+  function makeFlyer() {
+    const { w, h } = fanCardSize();
+    const fly = document.createElement('div');
+    fly.className = 'flyer';
+    fly.style.cssText = `left:0;top:0;width:${w}px;height:${h}px;`;
+    fly.innerHTML = `<div class="face back">${art.back()}</div>`;
+    document.body.appendChild(fly);
+    return fly;
+  }
+  function fanStart(fanEl) {
+    const r = fanEl.getBoundingClientRect();
+    fanEl.classList.add('taken');
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, rot: parseFloat(fanEl.style.getPropertyValue('--rot')) || 0, s: 1 };
+  }
+
+  /* ---------------- Жест: провести → зажать → взмахнуть ---------------- */
+  function pickByGesture(zone, fan, need, onTake, token) {
+    return new Promise(resolve => {
+      const HOLD_MS = 380;
+      let hover = null, pressing = false, holdTimer = 0, held = null, taken = 0, hintShown = false;
+
+      const cardAt = (x, y) => {
+        const el = document.elementFromPoint(x, y);
+        const c = el && el.closest('.fan-card');
+        return c && zone.contains(c) && !c.classList.contains('taken') ? c : null;
+      };
+      const setHover = el => {
+        if (el === hover) return;
+        if (hover) hover.classList.remove('hover', 'charging');
+        hover = el;
+        if (hover) { hover.classList.add('hover'); if (pressing) hover.classList.add('charging'); }
+      };
+      const armHold = e => {
+        clearTimeout(holdTimer);
+        if (!hover) return;
+        hover.classList.add('charging');
+        const target = hover;
+        holdTimer = setTimeout(() => { if (pressing && hover === target) grab(target, e.clientX, e.clientY); }, HOLD_MS);
+      };
+
+      // вытянуть карту из колоды: она увеличивается и следует за пальцем
+      const grab = (el, px, py) => {
+        const { w, h } = fanCardSize();
+        const start = fanStart(el);
+        el.classList.remove('hover', 'charging');
+        hover = null;
+        const S = Math.min(2.6, Math.max(1.6, 120 / w));
+        const lift = h * S * .45; // карта над пальцем, чтобы её было видно
+        const fly = makeFlyer();
+        fly.classList.add('held');
+        held = { el, fly, S, lift, x: px, y: py - lift, rot: 0, samples: [{ t: performance.now(), x: px, y: py }] };
+        fly.style.transform = `translate(${start.x - w / 2}px, ${start.y - h / 2}px) rotate(${start.rot}deg) scale(1)`;
+        fly.getBoundingClientRect();
+        fly.style.transition = 'transform .28s cubic-bezier(.2,1.4,.4,1)';
+        place();
+        setTimeout(() => { if (held && held.fly === fly) fly.style.transition = 'transform .06s linear'; }, 290);
+        if (navigator.vibrate) { try { navigator.vibrate(18); } catch (err) { /* ignore */ } }
+        burst(start.x, start.y, 10, 50);
+        setStatus('Взмахни картой вверх — она ляжет на стол');
+      };
+      const place = () => {
+        const { w, h } = fanCardSize();
+        held.fly.style.transform = `translate(${held.x - w / 2}px, ${held.y - h / 2}px) rotate(${held.rot}deg) scale(${held.S})`;
+      };
+      function down(e) {
+        if (token !== state.run || taken >= need) return;
+        pressing = true;
+        try { zone.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+        setHover(cardAt(e.clientX, e.clientY));
+        armHold(e);
+        e.preventDefault();
+      }
+      function move(e) {
+        if (held) {
+          const tilt = Math.max(-18, Math.min(18, (e.clientX - held.x) * .6));
+          held.x = e.clientX; held.y = e.clientY - held.lift; held.rot = tilt;
+          held.samples.push({ t: performance.now(), x: e.clientX, y: e.clientY });
+          if (held.samples.length > 12) held.samples.shift();
+          place();
+          return;
+        }
+        const el = cardAt(e.clientX, e.clientY);
+        if (el !== hover) { setHover(el); if (pressing) armHold(e); }
+      }
+      function up() {
+        clearTimeout(holdTimer);
+        const wasPressing = pressing;
+        pressing = false;
+        if (held) {
+          const h0 = held;
+          const now = performance.now();
+          const pts = h0.samples.filter(p => now - p.t < 110);
+          let v = { vx: 0, vy: 0 };
+          if (pts.length >= 2) { const a = pts[0], b = pts[pts.length - 1], dt = Math.max(16, b.t - a.t); v = { vx: (b.x - a.x) / dt, vy: (b.y - a.y) / dt }; }
+          releaseWith(v);
+        } else if (wasPressing && hover && !hintShown) {
+          hintShown = true;
+          toast('Зажми карту, пока она не поднимется, и взмахни вверх');
+        }
+        if (hover) hover.classList.remove('charging');
+      }
+      function releaseWith(v) {
+        const h0 = held;
+        held = null;
+        const zoneTop = zone.getBoundingClientRect().top;
+        const flick = v.vy < -0.45 || (h0.y + h0.lift < zoneTop - 30 && v.vy < 0.2);
+        if (flick && taken < need) {
+          taken++;
+          h0.fly.classList.remove('held');
+          onTake(fan.find(f => f.el === h0.el), { x: h0.x, y: h0.y, rot: h0.rot, s: h0.S, vx: v.vx, vy: Math.min(v.vy, -0.3), fly: h0.fly });
+          if (taken >= need) finish();
+          else setStatus(`Хорошо. Осталось вытянуть: ${need - taken}`);
+        } else {
+          // без взмаха карта возвращается в колоду
+          const r = h0.el.getBoundingClientRect();
+          const { w, h } = fanCardSize();
+          const rot = parseFloat(h0.el.style.getPropertyValue('--rot')) || 0;
+          h0.fly.style.transition = 'transform .35s cubic-bezier(.4,0,.2,1)';
+          h0.fly.style.transform = `translate(${r.left + r.width / 2 - w / 2}px, ${r.top + r.height / 2 - h / 2}px) rotate(${rot}deg) scale(1)`;
+          setTimeout(() => { h0.fly.remove(); h0.el.classList.remove('taken'); }, 360);
+          setStatus('Не хватило взмаха — зажми карту и резко веди вверх');
+        }
+      }
+      function leave() { if (!pressing && !held) setHover(null); }
+      function finish() {
+        zone.classList.remove('picking');
+        zone.removeEventListener('pointerdown', down);
+        zone.removeEventListener('pointermove', move);
+        zone.removeEventListener('pointerup', up);
+        zone.removeEventListener('pointercancel', up);
+        zone.removeEventListener('pointerleave', leave);
+        setHover(null);
+        resolve();
+      }
+      zone.oncontextmenu = e => e.preventDefault(); // долгое нажатие не открывает меню
+      zone.addEventListener('pointerdown', down);
+      zone.addEventListener('pointermove', move);
+      zone.addEventListener('pointerup', up);
+      zone.addEventListener('pointercancel', up);
+      zone.addEventListener('pointerleave', leave);
     });
   }
 
@@ -249,35 +402,22 @@
     const markNext = () => slots.forEach((s, i) => s.classList.toggle('next', i === draws.length));
     markNext();
 
-    const takeCard = async (item) => {
+    const takeCard = async (item, start) => {
       const posIndex = draws.length;
       const reversed = allowRev && reading.secureRandom() < 0.5;
       const d = { card: item.card, reversed, posIndex };
       draws.push(d);
       markNext();
-      d.el = await flyToSlot(item.el, slots[posIndex], item.card, reversed);
+      d.el = await flyToSlot(start || item.el, slots[posIndex], item.card, reversed);
     };
 
     const need = spread.pos.length;
     if (pickSelf) {
-      setStatus(`Выберите ${need === 1 ? 'одну карту' : need + ' ' + (need < 5 ? 'карты' : 'карт')} — доверьтесь руке`);
+      setStatus('Проведи по колоде, зажми карту и взмахни ею вверх');
       zone.classList.add('picking');
-      await new Promise(resolve => {
-        const flights = [];
-        const onPick = e => {
-          const el = e.target.closest('.fan-card');
-          if (!el || el.classList.contains('taken') || draws.length >= need || token !== state.run) return;
-          const item = fan.find(f => f.el === el);
-          flights.push(takeCard(item));
-          if (draws.length < need) setStatus(`Осталось выбрать: ${need - draws.length}`);
-          else {
-            zone.classList.remove('picking');
-            zone.removeEventListener('click', onPick);
-            Promise.all(flights).then(resolve);
-          }
-        };
-        zone.addEventListener('click', onPick);
-      });
+      const flights = [];
+      await pickByGesture(zone, fan, need, (item, start) => flights.push(takeCard(item, start)), token);
+      await Promise.all(flights);
     } else {
       setStatus('Колода сама выбирает карты<span class="dots"></span>');
       const avail = fan.slice();
